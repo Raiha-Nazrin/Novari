@@ -8,67 +8,87 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
-/*val Typography = Typography(
-    bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
-    )
-    *//* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
-        letterSpacing = 0.sp
+val NovariDisplayFont = FontFamily.Default
+val NovariBodyFont = FontFamily.Default
+
+val NovariTypography = Typography(
+
+    // Large editorial headings
+    displayLarge = TextStyle(
+        fontFamily = NovariDisplayFont,
+        fontSize = 48.sp,
+        lineHeight = 52.sp,
+        color = NovariColors.Navy
     ),
+
+    displayMedium = TextStyle(
+        fontFamily = NovariDisplayFont,
+        fontSize = 40.sp,
+        lineHeight = 44.sp,
+        color = NovariColors.Navy
+    ),
+
+    headlineLarge = TextStyle(
+        fontFamily = NovariDisplayFont,
+        fontSize = 36.sp,
+        lineHeight = 40.sp,
+        color = NovariColors.Navy
+    ),
+
+    headlineMedium = TextStyle(
+        fontFamily = NovariDisplayFont,
+        fontSize = 30.sp,
+        lineHeight = 34.sp,
+        color = NovariColors.Navy
+    ),
+
+    headlineSmall = TextStyle(
+        fontFamily = NovariDisplayFont,
+        fontSize = 26.sp,
+        lineHeight = 30.sp,
+        color = NovariColors.Navy
+    ),
+
+    // UI / body
+    bodyLarge = TextStyle(
+        fontFamily = NovariBodyFont,
+        fontSize = 17.sp,
+        lineHeight = 24.sp,
+        color = NovariColors.Navy
+    ),
+
+    bodyMedium = TextStyle(
+        fontFamily = NovariBodyFont,
+        fontSize = 15.sp,
+        lineHeight = 21.sp,
+        color = NovariColors.Slate
+    ),
+
+    bodySmall = TextStyle(
+        fontFamily = NovariBodyFont,
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
+        color = NovariColors.Slate
+    ),
+
+    labelLarge = TextStyle(
+        fontFamily = NovariBodyFont,
+        fontSize = 15.sp,
+        lineHeight = 20.sp,
+        color = NovariColors.Navy
+    ),
+
+    labelMedium = TextStyle(
+        fontFamily = NovariBodyFont,
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
+        color = NovariColors.Slate
+    ),
+
     labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
+        fontFamily = NovariBodyFont,
         fontSize = 11.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        color = NovariColors.Muted
     )
-    *//*
-)*/
-
-@RequiresApi(Build.VERSION_CODES.Q)
-val AppTypography = Typography(
-    displayLarge = TextStyle(
-        fontFamily = InterFontFamily,
-        fontWeight = FontWeight.Bold,
-        fontSize = 36.sp
-    ),
-    headlineMedium = TextStyle(
-        fontFamily = InterFontFamily,
-        fontWeight = FontWeight.SemiBold,
-        fontSize = 24.sp
-    ),
-    titleLarge = TextStyle(
-        fontFamily = InterFontFamily,
-        fontWeight = FontWeight.Medium,
-        fontSize = 20.sp
-    ),
-    bodyLarge = TextStyle(
-        fontFamily = InterFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 24.sp
-    ),
-    bodyMedium = TextStyle(
-        fontFamily = InterFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 20.sp
-    ),
-    labelLarge = TextStyle(
-        fontFamily = InterFontFamily,
-        fontWeight = FontWeight.Medium,
-        fontSize = 14.sp
-    )
-    // fill in the rest (displayMedium, headlineLarge, bodySmall, etc.) as needed
 )
-
