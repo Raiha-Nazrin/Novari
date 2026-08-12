@@ -10,6 +10,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.example.novari.navigation.AppNavigation
 import com.example.novari.ui.screens.permissions.SetupPermissionRoute
 import com.example.novari.ui.theme.NovariTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,18 +22,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NovariTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+               /* Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting("", modifier = Modifier.padding(innerPadding))
-                }
+                }*/
+
+                AppNavigation()
             }
         }
     }
 }
 
-@Composable
+/*@Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
         text = "Hello $name!",
         modifier = modifier
     )
-}
+}*/
