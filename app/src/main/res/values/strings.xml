@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Novari</string>
+    <string name="almost_ready">Almost ready</string>
+    <string name="novari_can_automate_your_expense_tracking">Novari can automate your\nexpense tracking.</string>
+    <string name="sms">SMS</string>
+    <string name="automatically_detect_transaction_messages_so_you_don_t_type_them_manually">Automatically detect\ntransaction messages so\nyou don\'t type them manually.</string>
+    <string name="notifications">Notifications</string>
+    <string name="get_useful_alerts_when_novari_detects_important_spending_trends">Get useful alerts when\nNovari detects important\nspending trends.</string>
+    <string name="maybe_later">Maybe later</string>
+    <string name="automatically_understand_your_spending">Automatically understand your spending</string>
+    <string name="access_is_controlled_by_you">Access is controlled by you.</string>
+    <string name="optional">Optional</string>
+    <string name="allow_access">Allow access</string>
+    <string name="stay_on_top_of_your_pending">Stay on top of your pending</string>
+    <string name="enabled">Enabled</string>
+    <string name="denied">Denied</string>
+    <string name="open_settings">Open Settings</string>
 </resources>
