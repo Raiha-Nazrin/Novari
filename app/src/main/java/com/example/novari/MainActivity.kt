@@ -22,20 +22,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             NovariTheme {
-               /* Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting("", modifier = Modifier.padding(innerPadding))
-                }*/
-
                 AppNavigation()
             }
         }
     }
 }
-
-/*@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}*/

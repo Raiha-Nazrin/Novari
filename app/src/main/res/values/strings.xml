@@ -15,4 +15,23 @@
     <string name="enabled">Enabled</string>
     <string name="denied">Denied</string>
     <string name="open_settings">Open Settings</string>
+    <string name="next">Next</string>
+
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_start_journey">Start Your Journey</string>
+
+    <string name="onboarding_title_1">Money is emotional.</string>
+    <string name="onboarding_intro_1">Understanding your spending should bring confidence, not stress.</string>
+    <string name="onboarding_body_1">Novari helps you see your money with</string>
+    <string name="onboarding_accent_1">clarity, not complexity.</string>
+
+    <string name="onboarding_title_2">See where your money goes.</string>
+    <string name="onboarding_intro_2">Without overwhelming reports or financial jargon,</string>
+    <string name="onboarding_body_2">Novari quietly reveals your spending habits,</string>
+    <string name="onboarding_accent_2">one day at a time.</string>
+
+    <string name="onboarding_title_3">Built for everyday life.</string>
+    <string name="onboarding_intro_3">Spend less time managing money,</string>
+    <string name="onboarding_body_3">and more time</string>
+    <string name="onboarding_accent_3">living with confidence.</string>
 </resources>

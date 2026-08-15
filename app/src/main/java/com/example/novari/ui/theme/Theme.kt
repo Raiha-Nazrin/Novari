@@ -3,6 +3,9 @@ package com.example.novari.ui.theme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import com.example.novari.ui.motion.LocalReducedMotion
+import com.example.novari.ui.motion.rememberReducedMotion
 
 private val NovariLightColors = lightColorScheme(
 
@@ -31,9 +34,11 @@ private val NovariLightColors = lightColorScheme(
 fun NovariTheme(
     content: @Composable () -> Unit
 ) {
-    MaterialTheme(
-        colorScheme = NovariLightColors,
-        typography = NovariTypography,
-        content = content
-    )
+    CompositionLocalProvider(LocalReducedMotion provides rememberReducedMotion()) {
+        MaterialTheme(
+            colorScheme = NovariLightColors,
+            typography = NovariTypography,
+            content = content
+        )
+    }
 }

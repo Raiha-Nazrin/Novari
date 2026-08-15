@@ -5,21 +5,24 @@ import com.example.novari.ui.screens.onboarding.OnboardingPage
 
 val onboardingPages: List<OnboardingPage> = listOf(
     OnboardingPage(
-        title = "Welcome",
-        description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
-                "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+        titleRes = R.string.onboarding_title_1,
+        introRes = R.string.onboarding_intro_1,
+        bodyRes = R.string.onboarding_body_1,
+        accentRes = R.string.onboarding_accent_1,
         imageRes = R.drawable.img_onboarding
     ),
     OnboardingPage(
-        title = "Stay Organized",
-        description = "Ut enim ad minim veniam, quis nostrud exercitation ullamco " +
-                "laboris nisi ut aliquip ex ea commodo consequat.",
+        titleRes = R.string.onboarding_title_2,
+        introRes = R.string.onboarding_intro_2,
+        bodyRes = R.string.onboarding_body_2,
+        accentRes = R.string.onboarding_accent_2,
         imageRes = R.drawable.img_onboarding2
     ),
     OnboardingPage(
-        title = "Get Started",
-        description = "Duis aute irure dolor in reprehenderit in voluptate velit " +
-                "esse cillum dolore eu fugiat nulla pariatur.",
+        titleRes = R.string.onboarding_title_3,
+        introRes = R.string.onboarding_intro_3,
+        bodyRes = R.string.onboarding_body_3,
+        accentRes = R.string.onboarding_accent_3,
         imageRes = R.drawable.img_onboarding3
     )
 )

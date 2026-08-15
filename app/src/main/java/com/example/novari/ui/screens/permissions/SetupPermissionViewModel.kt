@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/** Reads rationale per-permission without the ViewModel ever holding an Activity reference. */
 fun interface RationaleProvider {
     fun shouldShowRationale(permission: String): Boolean
 }

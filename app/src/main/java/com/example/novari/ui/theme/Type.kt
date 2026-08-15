@@ -1,15 +1,12 @@
 package com.example.novari.ui.theme
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-val NovariDisplayFont = FontFamily.Default
-val NovariBodyFont = FontFamily.Default
+val NovariDisplayFont = SerifFontFamily
+val NovariBodyFont = InterFontFamily
 
 val NovariTypography = Typography(
 
@@ -30,8 +27,10 @@ val NovariTypography = Typography(
 
     headlineLarge = TextStyle(
         fontFamily = NovariDisplayFont,
-        fontSize = 36.sp,
+        fontWeight = FontWeight.Normal,
+        fontSize = 34.sp,
         lineHeight = 40.sp,
+        letterSpacing = (-0.5).sp,
         color = NovariColors.Navy
     ),
 
