@@ -34,4 +34,34 @@
     <string name="onboarding_intro_3">Spend less time managing money,</string>
     <string name="onboarding_body_3">and more time</string>
     <string name="onboarding_accent_3">living with confidence.</string>
+
+    <string name="insights_title">Insights</string>
+    <string name="insights_subtitle">Understand your spending, one pattern at a time.</string>
+    <string name="insights_this_month_range">This month</string>
+    <string name="insights_change_range">Change date range</string>
+    <string name="insights_this_month_label">THIS MONTH</string>
+    <string name="insights_spent">spent</string>
+    <string name="insights_less_than_last_month">%1$d%% less than last month</string>
+    <string name="insights_more_than_last_month">%1$d%% more than last month</string>
+    <string name="insights_where_money_went">Where your money went</string>
+    <string name="insights_view_all_categories">View all categories</string>
+    <string name="insights_weekly_rhythm">This week\'s rhythm</string>
+    <string name="insights_this_week">this week</string>
+    <string name="insights_less_than_last_week">less than last week</string>
+    <string name="insights_more_than_last_week">more than last week</string>
+    <string name="insights_what_changed">What changed</string>
+    <string name="insights_dining">Dining</string>
+    <string name="insights_shopping">Shopping</string>
+    <string name="insights_transport">Transport</string>
+    <string name="insights_less_than_last_month_short">less than\nlast month</string>
+    <string name="insights_more_than_last_month_short">more than\nlast month</string>
+    <string name="insights_about_the_same">about\nthe same</string>
+    <string name="insights_percent_format">%1$d%%</string>
+    <string name="insights_day_mon">Mon</string>
+    <string name="insights_day_tue">Tue</string>
+    <string name="insights_day_wed">Wed</string>
+    <string name="insights_day_thu">Thu</string>
+    <string name="insights_day_fri">Fri</string>
+    <string name="insights_day_sat">Sat</string>
+    <string name="insights_day_sun">Sun</string>
 </resources>
