@@ -22,8 +22,8 @@ fun StaggeredEntry(
     content: @Composable () -> Unit
 ) {
     val reducedMotion = LocalReducedMotion.current
-    val progress = remember { Animatable(if (reducedMotion) 1f else 0f) }
     var hasPlayed by rememberSaveable { mutableStateOf(reducedMotion) }
+    val progress = remember { Animatable(if (reducedMotion || hasPlayed) 1f else 0f) }
 
     LaunchedEffect(visible) {
         if (!visible || hasPlayed) return@LaunchedEffect
