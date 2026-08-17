@@ -132,13 +132,9 @@ private fun HomeHeader(
         verticalAlignment = Alignment.Top
     ) {
         Column {
+
             Text(
-                text = "Good morning,",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                text = "$userName 👋",
+                text = "Good morning 👋",
                 style = MaterialTheme.typography.headlineMedium
             )
         }

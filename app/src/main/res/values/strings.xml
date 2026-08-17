@@ -74,4 +74,5 @@
     <string name="insights_day_fri">Fri</string>
     <string name="insights_day_sat">Sat</string>
     <string name="insights_day_sun">Sun</string>
+    <string name="settings">Settings</string>
 </resources>

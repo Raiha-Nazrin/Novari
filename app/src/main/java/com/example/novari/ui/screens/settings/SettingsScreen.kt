@@ -67,14 +67,6 @@ fun SettingsScreen(
             onNotificationClick = onNotificationsClick
         )
 
-        Spacer(modifier = Modifier.height(28.dp))
-
-        // Profile Card
-        ProfileAccountCard(
-            name = "Arjun",
-            accountType = "Personal account",
-            onEditClick = onEditProfile
-        )
 
         Spacer(modifier = Modifier.height(22.dp))
 
@@ -127,7 +119,7 @@ private fun ProfileHeader(
             modifier = Modifier.weight(1f)
         ) {
             Text(
-                text = stringResource(R.string.profile),
+                text = stringResource(R.string.settings),
                 style = MaterialTheme.typography.headlineMedium
             )
 
@@ -142,85 +134,6 @@ private fun ProfileHeader(
 
     }
 }
-
-@Composable
-private fun ProfileAccountCard(
-    name: String,
-    accountType: String,
-    onEditClick: () -> Unit
-) {
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(15.dp),
-        color = NovariColors.Surface,
-        border = BorderStroke(
-            width = 1.dp,
-            color = NovariColors.Border
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = 14.dp,
-                    vertical = 12.dp
-                ),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-
-            // Avatar
-            Box(
-                modifier = Modifier
-                    .size(30.dp)
-                    .background(
-                        color = NovariColors.PaleTeal,
-                        shape = CircleShape
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = name
-                        .firstOrNull()
-                        ?.uppercase()
-                        ?: "",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = NovariColors.Teal
-                )
-            }
-
-            Spacer(modifier = Modifier.width(22.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.titleLarge
-                )
-
-                Spacer(modifier = Modifier.height(2.dp))
-
-                Text(
-                    text = accountType,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            IconButton(
-                onClick = onEditClick
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Edit,
-                    contentDescription = "Edit profile",
-                    tint = NovariColors.Navy,
-                    modifier = Modifier.size(25.dp)
-                )
-            }
-        }
-    }
-}
-
-
 
 @Composable
 private fun PreferencesCard(
@@ -256,23 +169,6 @@ private fun PreferencesCard(
                 onClick = onNotificationsClick
             )
 
-            PreferenceDivider()
-
-            PreferenceItem(
-                icon = Icons.Outlined.Shield,
-                title = "Privacy",
-                subtitle = "Permissions and data controls",
-                onClick = onPrivacyClick
-            )
-
-            PreferenceDivider()
-
-            PreferenceItem(
-                icon = Icons.Outlined.Cloud,
-                title = "Backup",
-                subtitle = "Manage your backup",
-                onClick = onBackupClick
-            )
         }
     }
 }
