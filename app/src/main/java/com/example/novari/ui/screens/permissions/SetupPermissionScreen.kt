@@ -88,7 +88,7 @@ fun SetupPermissionScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(R.drawable.ic_shield_auto_track),
+                    painter = painterResource(R.drawable.ic_shield),
                     contentDescription = null,
                     modifier = Modifier
 

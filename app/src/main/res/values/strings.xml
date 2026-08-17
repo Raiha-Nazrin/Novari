@@ -34,6 +34,12 @@
     <string name="onboarding_intro_3">Spend less time managing money,</string>
     <string name="onboarding_body_3">and more time</string>
     <string name="onboarding_accent_3">living with confidence.</string>
+
+
+    <string name="preferences">Preferences</string>
+    <string name="profile">Profile</string>
+    <string name="manage_your_novari_experience">Manage your Novari experience.</string>
+    <string name="about_novari">About Novari</string>
     <string name="enable_automatic_tracking_via_transaction">Enable automatic tracking via transaction text messages to skip manual entries entirely.</string>
     <string name="enable_auto_tracking">Enable Auto-Tracking</string>
     <string name="add_expense_manually">Add Expense Manually</string>

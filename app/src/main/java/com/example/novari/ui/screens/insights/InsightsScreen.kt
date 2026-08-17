@@ -49,7 +49,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.novari.R
 import com.example.novari.data.Category
 import com.example.novari.data.categories
@@ -60,14 +59,10 @@ import com.example.novari.ui.screens.insights.charts.WeeklyChart
 import com.example.novari.ui.theme.NovariColors
 import com.example.novari.ui.theme.NovariShape
 import com.example.novari.ui.theme.NovariSpacing
-import com.example.novari.ui.theme.NovariTypography
 import java.text.NumberFormat
 import java.util.Locale
 
 private val AdaptiveTwoColumnThreshold = 600.dp
-
-private val CardTitleStyle
-    @Composable get() = NovariTypography.headlineSmall.copy(fontSize = 19.sp, lineHeight = 24.sp)
 
 private val IndianLocale: Locale = Locale.Builder().setLanguage("en").setRegion("IN").build()
 
@@ -146,14 +141,14 @@ private fun InsightsHeader() {
 
         Text(
             text = stringResource(R.string.insights_title),
-            style = NovariTypography.headlineLarge
+            style = MaterialTheme.typography.headlineLarge
         )
 
         Spacer(modifier = Modifier.height(NovariSpacing.sm))
 
         Text(
             text = stringResource(R.string.insights_subtitle),
-            style = NovariTypography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium
         )
     }
 }
@@ -171,7 +166,7 @@ private fun MonthSelector(
 
         Text(
             text = "August 2026",
-            style = NovariTypography.labelLarge,
+            style = MaterialTheme.typography.labelLarge,
             color = NovariColors.Teal,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -195,7 +190,7 @@ private fun MonthSelector(
             ) {
                 Text(
                     text = stringResource(R.string.insights_this_month_range),
-                    style = NovariTypography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium,
                     color = NovariColors.Navy
                 )
 
@@ -219,7 +214,7 @@ private fun MonthlySpendingCard() {
 
         Text(
             text = stringResource(R.string.insights_this_month_label),
-            style = NovariTypography.labelSmall.copy(letterSpacing = 0.8.sp),
+            style = MaterialTheme.typography.labelSmall,
             color = NovariColors.Muted
         )
 
@@ -233,7 +228,7 @@ private fun MonthlySpendingCard() {
         ) {
             Text(
                 text = formatRupees(24560),
-                style = NovariTypography.headlineMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -242,7 +237,7 @@ private fun MonthlySpendingCard() {
 
             Text(
                 text = stringResource(R.string.insights_spent),
-                style = NovariTypography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(bottom = 4.dp)
             )
         }
@@ -261,7 +256,7 @@ private fun MonthlySpendingCard() {
 
             Text(
                 text = stringResource(R.string.insights_less_than_last_month, 8),
-                style = NovariTypography.labelMedium,
+                style = MaterialTheme.typography.labelMedium,
                 color = NovariColors.Teal
             )
         }
@@ -288,7 +283,7 @@ private fun CategoriesCard(
 
         Text(
             text = stringResource(R.string.insights_where_money_went),
-            style = CardTitleStyle,
+            style = MaterialTheme.typography.titleLarge,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -302,7 +297,7 @@ private fun CategoriesCard(
             TextButton(onClick = onViewAllCategories) {
                 Text(
                     text = stringResource(R.string.insights_view_all_categories),
-                    style = NovariTypography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium,
                     color = NovariColors.Teal
                 )
 
@@ -370,7 +365,7 @@ private fun CategoryRow(
 
                 Text(
                     text = category.name,
-                    style = NovariTypography.labelLarge,
+                    style = MaterialTheme.typography.labelLarge,
                     color = NovariColors.Navy,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -381,7 +376,7 @@ private fun CategoryRow(
 
                 Text(
                     text = formatRupees(category.amount),
-                    style = NovariTypography.labelLarge,
+                    style = MaterialTheme.typography.labelLarge,
                     color = NovariColors.Navy
                 )
 
@@ -389,7 +384,7 @@ private fun CategoryRow(
 
                 Text(
                     text = stringResource(R.string.insights_percent_format, category.percentage),
-                    style = NovariTypography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium,
                     color = NovariColors.Slate,
                     textAlign = TextAlign.End,
                     modifier = Modifier.width(44.dp)
@@ -463,7 +458,7 @@ private fun WeeklyRhythmCard(
 
         Text(
             text = stringResource(R.string.insights_weekly_rhythm),
-            style = CardTitleStyle,
+            style = MaterialTheme.typography.titleLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -483,7 +478,7 @@ private fun WeeklyRhythmCard(
         WeeklyChart(
             values = listOf(.40f, .62f, .58f, .76f, .72f, .34f, .55f),
             labels = dayLabels,
-            labelStyle = NovariTypography.labelSmall.copy(color = NovariColors.Muted),
+            labelStyle = MaterialTheme.typography.labelSmall.copy(color = NovariColors.Muted),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -497,11 +492,11 @@ private fun WeeklyRhythmCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = formatRupees(2840),
-                    style = NovariTypography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall
                 )
                 Text(
                     text = stringResource(R.string.insights_this_week),
-                    style = NovariTypography.labelMedium,
+                    style = MaterialTheme.typography.labelMedium,
                     color = NovariColors.Slate
                 )
             }
@@ -517,13 +512,13 @@ private fun WeeklyRhythmCard(
                     Spacer(modifier = Modifier.width(NovariSpacing.xs))
                     Text(
                         text = stringResource(R.string.insights_percent_format, 12),
-                        style = NovariTypography.labelLarge,
+                        style = MaterialTheme.typography.labelLarge,
                         color = NovariColors.Teal
                     )
                 }
                 Text(
                     text = stringResource(R.string.insights_less_than_last_week),
-                    style = NovariTypography.labelSmall,
+                    style = MaterialTheme.typography.labelSmall,
                     color = NovariColors.Muted,
                     maxLines = 2
                 )
@@ -541,7 +536,7 @@ private fun WhatChangedCard(
 
         Text(
             text = stringResource(R.string.insights_what_changed),
-            style = CardTitleStyle,
+            style = MaterialTheme.typography.titleLarge,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -618,7 +613,7 @@ private fun ChangeItem(
 
         Text(
             text = title,
-            style = NovariTypography.labelLarge,
+            style = MaterialTheme.typography.labelLarge,
             color = NovariColors.Navy,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -651,7 +646,7 @@ private fun ChangeItem(
 
             Text(
                 text = stringResource(R.string.insights_percent_format, kotlin.math.abs(changePercent)),
-                style = NovariTypography.labelLarge,
+                style = MaterialTheme.typography.labelLarge,
                 color = trendColor
             )
         }
@@ -660,7 +655,7 @@ private fun ChangeItem(
 
         Text(
             text = description,
-            style = NovariTypography.labelSmall,
+            style = MaterialTheme.typography.labelSmall,
             color = NovariColors.Muted,
             maxLines = 2
         )

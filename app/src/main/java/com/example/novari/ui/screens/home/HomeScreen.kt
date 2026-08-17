@@ -1,6 +1,7 @@
 package com.example.novari.ui.screens.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,7 +39,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.novari.R
 
@@ -134,13 +134,12 @@ private fun HomeHeader(
         Column {
             Text(
                 text = "Good morning,",
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Text(
                 text = "$userName 👋",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.SemiBold
+                style = MaterialTheme.typography.headlineMedium
             )
         }
 
@@ -183,8 +182,7 @@ private fun MonthlyExpenseCard(
 
         Text(
             text = "₹${formatAmount(amount)}",
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.headlineSmall
         )
 
         Text(
@@ -239,11 +237,10 @@ private fun TodayExpenseCard(
                 .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
+            Image(
                 painter = painterResource(id = R.drawable.ic_calender_new),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(35.dp)
             )
         }
 
@@ -258,8 +255,7 @@ private fun TodayExpenseCard(
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     text = "₹${formatAmount(amount)}",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
@@ -302,19 +298,17 @@ private fun AutoTrackingCard(
             .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp))
             .padding(20.dp)
     ) {
-        Icon(
+        Image(
             painter = painterResource(id = R.drawable.ic_shield_auto_track),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(28.dp)
+            modifier = Modifier.size(40.dp)
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
             text = "Let Novari do the heavy lifting.",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.SemiBold
+            style = MaterialTheme.typography.titleMedium
         )
 
         Spacer(modifier = Modifier.height(4.dp))
@@ -369,8 +363,7 @@ private fun RecentTransactionsSection(
         ) {
             Text(
                 text = "Recent transactions",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
+                style = MaterialTheme.typography.titleMedium
             )
             TextButton(onClick = onSeeAllTransactions) {
                 Text(text = "See all →", color = MaterialTheme.colorScheme.primary)
@@ -445,8 +438,7 @@ private fun TransactionItem(
 
             Text(
                 text = "₹${formatAmount(transaction.amount)}",
-                style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium
+                style = MaterialTheme.typography.labelLarge
             )
 
             Icon(
@@ -522,13 +514,10 @@ private fun InsightCard(
                 .background(MaterialTheme.colorScheme.surface),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-
-                // drawable (per the task's reference image) if one exists.
+            Image(
                 painter = painterResource(id = R.drawable.ic_insight_plant),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(40.dp)
             )
         }
 
@@ -537,8 +526,7 @@ private fun InsightCard(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = stringResource(R.string.a_little_insight),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold
+                style = MaterialTheme.typography.titleSmall
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(

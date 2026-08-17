@@ -14,10 +14,10 @@ import androidx.compose.ui.Modifier
  * point future work will flesh out — no functionality beyond a label.
  */
 
-@Composable
-fun InsightsScreen(modifier: Modifier = Modifier) {
-    PlaceholderContent(text = "Insights", modifier = modifier)
-}
+//@Composable
+//fun InsightsScreen(modifier: Modifier = Modifier) {
+//    PlaceholderContent(text = "Insights", modifier = modifier)
+//}
 
 @Composable
 fun AddExpenseScreen(modifier: Modifier = Modifier) {

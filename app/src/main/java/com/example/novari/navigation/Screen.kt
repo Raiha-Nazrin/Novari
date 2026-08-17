@@ -6,4 +6,14 @@ sealed class Screen(val route: String) {
     data object Onboarding : Screen("onboarding")
     data object Dashboard : Screen("dashboard")
     data object SetupPermission : Screen("setup_permission")
+
+    data object LegalDocument : Screen("legal_document/{docType}") {
+        const val ARG_DOC_TYPE = "docType"
+        fun createRoute(docType: LegalDocType) = "legal_document/${docType.name}"
+    }
+}
+
+enum class LegalDocType(val assetPath: String, val title: String) {
+    PRIVACY_POLICY("legal/privacy-policy.html", "Privacy Policy"),
+    TERMS("legal/terms.html", "Terms")
 }

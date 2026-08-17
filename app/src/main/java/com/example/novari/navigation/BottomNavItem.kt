@@ -22,13 +22,14 @@ import com.example.novari.R
 sealed class BottomNavItem(
     val route: String,
     val label: String,
-    @DrawableRes val iconRes: Int
+    @DrawableRes val iconRes: Int,
+    @DrawableRes val selectedIconRes: Int
 ) {
-    data object Home : BottomNavItem("dashboard/home", "Home", R.drawable.ic_home)
-    data object Insights : BottomNavItem("dashboard/insights", "Insights", R.drawable.ic_insights)
-    data object Add : BottomNavItem("dashboard/add", "Add", R.drawable.ic_add)
-    data object Search : BottomNavItem("dashboard/search", "Search", R.drawable.ic_search)
-    data object Profile : BottomNavItem("dashboard/profile", "Profile", R.drawable.ic_profile)
+    data object Home : BottomNavItem("dashboard/home", "Home", R.drawable.home_outlined, R.drawable.home_filled)
+    data object Insights : BottomNavItem("dashboard/insights", "Insights", R.drawable.insights_outlined, R.drawable.insights_filled)
+    data object Add : BottomNavItem("dashboard/add", "Add", R.drawable.ic_add, R.drawable.ic_add)
+    data object Search : BottomNavItem("dashboard/search", "Search", R.drawable.search_outlined, R.drawable.search_filled)
+    data object Profile : BottomNavItem("dashboard/profile", "Profile", R.drawable.profile_outlined, R.drawable.profile_filled)
 
     companion object {
         val items = listOf(Home, Insights, Add, Search, Profile)

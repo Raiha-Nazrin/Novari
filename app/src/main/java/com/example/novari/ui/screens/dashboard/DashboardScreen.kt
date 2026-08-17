@@ -1,23 +1,23 @@
 package com.example.novari.ui.screens.dashboard
 
-import com.example.novari.navigation.BottomNavItem
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.runtime.getValue
+import com.example.novari.navigation.BottomNavItem
 import com.example.novari.ui.screens.AddExpenseScreen
-import com.example.novari.ui.screens.InsightsScreen
-import com.example.novari.ui.screens.ProfileScreen
 import com.example.novari.ui.screens.SearchScreen
 import com.example.novari.ui.screens.home.HomeScreen
 import com.example.novari.ui.screens.home.mockHomeUiState
+import com.example.novari.ui.screens.insights.InsightsScreen
+import com.example.novari.ui.screens.settings.SettingsScreen
 
 
 /**
@@ -34,6 +34,8 @@ import com.example.novari.ui.screens.home.mockHomeUiState
 @Composable
 fun DashboardScreen(
     onEnableAutoTracking: () -> Unit = {},
+    onOpenPrivacyPolicy: () -> Unit = {},
+    onOpenTerms: () -> Unit = {},
     dashboardNavController: NavHostController = rememberNavController()
 ) {
     val currentBackStackEntry by dashboardNavController.currentBackStackEntryAsState()
@@ -84,7 +86,10 @@ fun DashboardScreen(
                 SearchScreen()
             }
             composable(BottomNavItem.Profile.route) {
-                ProfileScreen()
+                SettingsScreen(
+                    onPrivacyPolicyClick = onOpenPrivacyPolicy,
+                    onTermsClick = onOpenTerms
+                )
             }
         }
     }

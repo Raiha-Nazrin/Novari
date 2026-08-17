@@ -29,6 +29,7 @@ import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,10 +38,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.novari.R
 import com.example.novari.ui.theme.NovariColors
-import com.example.novari.ui.theme.NovariTypography
 
 @Composable
 fun SettingsScreen(
@@ -48,7 +47,9 @@ fun SettingsScreen(
     onAppearanceClick: () -> Unit = {},
     onNotificationsClick: () -> Unit = {},
     onPrivacyClick: () -> Unit = {},
-    onBackupClick: () -> Unit = {}
+    onBackupClick: () -> Unit = {},
+    onPrivacyPolicyClick: () -> Unit = {},
+    onTermsClick: () -> Unit = {}
 ) {
     val scrollState = rememberScrollState()
 
@@ -81,9 +82,8 @@ fun SettingsScreen(
         // Preferences
         Text(
             text = stringResource(R.string.preferences),
-            style = NovariTypography.headlineSmall,
-            modifier = Modifier.padding(horizontal = 12.dp),
-            fontSize = 18.sp
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 12.dp)
         )
 
         Spacer(modifier = Modifier.height(14.dp))
@@ -99,18 +99,17 @@ fun SettingsScreen(
 
         Text(
             text = stringResource(R.string.about_novari),
-            style = NovariTypography.headlineSmall,
-            modifier = Modifier.padding(horizontal = 12.dp),
-            fontSize = 18.sp
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(horizontal = 12.dp)
         )
 
         Spacer(modifier = Modifier.height(14.dp))
 
         AboutNovariCard(
-            onAppearanceClick = onAppearanceClick,
-            onNotificationsClick = onNotificationsClick,
-            onPrivacyClick = onPrivacyClick,
-            onBackupClick = onBackupClick
+            onAboutNovariClick = onAppearanceClick,
+            onPrivacyPolicyClick = onPrivacyPolicyClick,
+            onTermsClick = onTermsClick,
+            onSupportClick = onBackupClick
         )
     }
 }
@@ -129,17 +128,15 @@ private fun ProfileHeader(
         ) {
             Text(
                 text = stringResource(R.string.profile),
-                style = NovariTypography.displayMedium,
-                fontSize = 24.sp
+                style = MaterialTheme.typography.headlineMedium
             )
 
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
                 text = stringResource(R.string.manage_your_novari_experience),
-                style = NovariTypography.bodyLarge,
-                color = NovariColors.Slate,
-                fontSize = 13.sp
+                style = MaterialTheme.typography.bodyMedium,
+                color = NovariColors.Slate
             )
         }
 
@@ -186,9 +183,8 @@ private fun ProfileAccountCard(
                         .firstOrNull()
                         ?.uppercase()
                         ?: "",
-                    style = NovariTypography.headlineMedium,
-                    color = NovariColors.Teal,
-                    fontSize = 16.sp
+                    style = MaterialTheme.typography.titleMedium,
+                    color = NovariColors.Teal
                 )
             }
 
@@ -199,16 +195,14 @@ private fun ProfileAccountCard(
             ) {
                 Text(
                     text = name,
-                    style = NovariTypography.headlineSmall,
-                    fontSize = 18.sp
+                    style = MaterialTheme.typography.titleLarge
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
 
                 Text(
                     text = accountType,
-                    style = NovariTypography.bodyMedium,
-                    fontSize = 13.sp
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 
@@ -285,10 +279,10 @@ private fun PreferencesCard(
 
 @Composable
 private fun AboutNovariCard(
-    onAppearanceClick: () -> Unit,
-    onNotificationsClick: () -> Unit,
-    onPrivacyClick: () -> Unit,
-    onBackupClick: () -> Unit
+    onAboutNovariClick: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
+    onTermsClick: () -> Unit,
+    onSupportClick: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -305,7 +299,7 @@ private fun AboutNovariCard(
                 icon = Icons.Outlined.Brightness6,
                 title = "About Team",
                 subtitle = "Learn more about Novari",
-                onClick = onAppearanceClick
+                onClick = onAboutNovariClick
             )
 
             PreferenceDivider()
@@ -314,7 +308,7 @@ private fun AboutNovariCard(
                 icon = Icons.Outlined.NotificationsNone,
                 title = "Privacy Policy",
                 subtitle = "How Novari protects your data",
-                onClick = onNotificationsClick
+                onClick = onPrivacyPolicyClick
             )
 
             PreferenceDivider()
@@ -323,7 +317,7 @@ private fun AboutNovariCard(
                 icon = Icons.Outlined.Shield,
                 title = "Terms",
                 subtitle = "Rules for using Novari",
-                onClick = onPrivacyClick
+                onClick = onTermsClick
             )
 
             PreferenceDivider()
@@ -332,7 +326,7 @@ private fun AboutNovariCard(
                 icon = Icons.Outlined.Cloud,
                 title = "Support",
                 subtitle = "Get help when you need it",
-                onClick = onBackupClick
+                onClick = onSupportClick
             )
         }
     }
@@ -381,18 +375,16 @@ private fun PreferenceItem(
         ) {
             Text(
                 text = title,
-                style = NovariTypography.bodyLarge,
-                color = NovariColors.Navy,
-                fontSize = 14.sp
+                style = MaterialTheme.typography.bodyLarge,
+                color = NovariColors.Navy
             )
 
             Spacer(modifier = Modifier.height(2.dp))
 
             Text(
                 text = subtitle,
-                style = NovariTypography.bodyMedium,
-                color = NovariColors.Slate,
-                fontSize = 12.sp
+                style = MaterialTheme.typography.bodySmall,
+                color = NovariColors.Slate
             )
         }
 

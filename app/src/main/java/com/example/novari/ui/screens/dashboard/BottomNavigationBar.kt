@@ -100,10 +100,10 @@ private fun BottomNavIconItem(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            painter = painterResource(id = item.iconRes),
+            painter = if(isSelected) painterResource(id = item.selectedIconRes) else painterResource(id = item.iconRes),
             contentDescription = null,
             tint = tint,
-            modifier = Modifier.size(24.dp)
+            modifier = Modifier.size(35.dp)
         )
         Text(
             text = item.label,

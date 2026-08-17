@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Privacy Policy for Novari, operated by Shiburaj RS.">
+<title>Privacy Policy — Novari</title>
+<style>
+:root {
+  --bg: #f7f8fa;
+  --surface: #ffffff;
+  --text: #17191c;
+  --muted: #68707a;
+  --border: #e5e7eb;
+  --accent: #111827;
+  --max: 860px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.7;
+}
+.container { width: min(calc(100% - 32px), var(--max)); margin: 0 auto; }
+header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.nav {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.logo {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 750;
+  font-size: 21px;
+  letter-spacing: -0.04em;
+}
+nav a {
+  color: var(--muted);
+  text-decoration: none;
+  margin-left: 20px;
+  font-size: 14px;
+}
+nav a:hover { color: var(--text); }
+main { padding: 64px 0 80px; }
+.hero { margin-bottom: 42px; }
+.eyebrow {
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-size: 12px;
+  font-weight: 700;
+}
+h1 {
+  font-size: clamp(34px, 6vw, 52px);
+  line-height: 1.08;
+  letter-spacing: -.045em;
+  margin: 10px 0 14px;
+}
+h2 {
+  font-size: 24px;
+  line-height: 1.25;
+  margin: 42px 0 12px;
+  letter-spacing: -.025em;
+}
+h3 { font-size: 18px; margin-top: 28px; }
+p, li { font-size: 16px; }
+.meta { color: var(--muted); font-size: 14px; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 24px;
+  margin: 24px 0;
+}
+.notice {
+  border-left: 3px solid var(--accent);
+  padding: 14px 18px;
+  background: #fff;
+  border-radius: 8px;
+}
+ul { padding-left: 24px; }
+a { color: inherit; }
+footer {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  padding: 30px 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+footer a { margin-right: 18px; }
+@media (max-width: 620px) {
+  .nav { align-items: flex-start; padding: 15px 0; flex-direction: column; gap: 6px; }
+  nav a { margin: 0 16px 0 0; }
+  main { padding-top: 40px; }
+  .card { padding: 18px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="container nav">
+    <a class="logo" href="index.html">Novari</a>
+    <nav>
+      <a href="privacy-policy.html">Privacy Policy</a>
+      <a href="terms.html">Terms &amp; Conditions</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="container">
+    
+<section class="hero">
+  <div class="eyebrow">Novari · Legal</div>
+  <h1>Privacy Policy</h1>
+  <p class="meta"><strong>Effective Date:</strong> August 16, 2026 · <strong>Operated by:</strong> Shiburaj RS · <strong>Contact:</strong> <a href="mailto:shiburaj525@gmail.com">shiburaj525@gmail.com</a></p>
+</section>
+
+<h2>1. Introduction</h2>
+<p>Novari is a personal finance and expense-tracking application operated by Shiburaj RS. Novari helps users record, organize, search, and understand personal expenses. It supports manually entered transactions and automatic transaction creation from relevant financial SMS messages.</p>
+<p>Your privacy is a core principle of Novari. Version 1.0 is designed to operate completely offline on the user's device. Novari does not operate a backend server and does not transmit transaction data or SMS-derived transaction information to a Novari server.</p>
+
+<h2>2. Information Novari Processes</h2>
+<h3>2.1 Manually Entered Transaction Information</h3>
+<p>When you manually create an expense or transaction, Novari may store the transaction amount, merchant or payee, category, transaction date and time, transaction type, and other information you voluntarily enter where supported.</p>
+<p>This information is stored locally on your device.</p>
+<h3>2.2 Financial SMS Information</h3>
+<p>Novari may request SMS access to provide automatic transaction-entry functionality. This feature is intended to identify relevant financial transaction messages, such as messages associated with banking or UPI transactions.</p>
+<p>Novari is designed to process this information locally on your device. Unrelated personal conversations and ordinary non-financial SMS messages are not intentionally processed for transaction creation.</p>
+<p>For a relevant financial SMS, Novari extracts information needed for expense management, such as amount, merchant, category, transaction date and time, and transaction type. The extracted information may be stored locally as a Novari transaction. Novari does not require the original SMS text to be stored as part of the transaction record.</p>
+
+<h2>3. How SMS Data Is Used</h2>
+<p>SMS-derived information is used solely to provide automatic transaction-entry and personal expense-management functionality. Novari does not use SMS information for advertising, marketing, user profiling, selling data, sharing data with advertisers, building a database of personal communications, or providing data to unrelated third-party services.</p>
+
+<h2>4. Local Processing and Offline Architecture</h2>
+<p>Novari Version 1.0 is designed to operate offline. In Version 1.0:</p>
+<ul>
+<li>Novari does not operate a backend server for user data.</li>
+<li>Transaction information is stored locally on the user's device.</li>
+<li>SMS-derived transaction information is processed locally.</li>
+<li>Novari does not transmit transaction information to a Novari server.</li>
+<li>Novari does not transmit SMS content to a Novari server.</li>
+<li>Novari does not use an external SMS-parsing service.</li>
+<li>Novari does not use an external AI service to process SMS messages.</li>
+<li>Novari does not currently use analytics services.</li>
+<li>Novari does not currently use crash-reporting services.</li>
+</ul>
+<p>Internet-connected backup or synchronization is not part of the current Version 1.0 functionality.</p>
+
+<h2>5. Permissions</h2>
+<h3>SMS Permission</h3>
+<p>SMS access may be requested to enable automatic identification of financial transactions from relevant SMS messages. Where supported, users can continue using functionality that does not require SMS access if they decline the permission.</p>
+<h3>Notification Permission</h3>
+<p>Novari may request notification permission for user-requested reminders, alerts, or other application notifications. Notifications are not used for advertising in Version 1.0.</p>
+
+<h2>6. Financial Information</h2>
+<p>Novari may process information relating to personal spending activity, including transaction amounts, merchants, categories, dates, and transaction types. This information is sensitive because it may reveal aspects of financial activity. Version 1.0 is designed so that this information remains on the user's device and is not transmitted to Novari servers.</p>
+<p>Users should protect their device using appropriate device-level security measures such as a screen lock, device encryption, and operating-system security updates.</p>
+
+<h2>7. Data Storage</h2>
+<p>Novari stores supported transaction information locally on the user's device. Stored information may include amount, merchant, category, transaction date and time, transaction type, and user-provided transaction information. Novari does not intentionally store unrelated SMS messages as Novari transaction data.</p>
+
+<h2>8. Data Sharing</h2>
+<p>Novari Version 1.0 does not sell, rent, or share users' transaction information or SMS-derived transaction information with third parties. There are currently no Novari backend services or third-party data-processing services used to process transaction or SMS data. Novari does not use financial information for advertising or targeted marketing.</p>
+
+<h2>9. Analytics and Crash Reporting</h2>
+<p>Novari Version 1.0 does not currently use analytics or crash-reporting services. If such services are introduced in a future version, Novari will review the associated data practices and update this Privacy Policy where required.</p>
+
+<h2>10. Backup and Synchronization</h2>
+<p>Cloud backup and multi-device synchronization are not part of Version 1.0. The current version does not provide Novari-controlled cloud storage for user transaction information.</p>
+<p>Future versions may introduce optional backup or synchronization functionality, potentially using Google Drive or another appropriate storage provider. If introduced, the applicable data practices and user controls will be disclosed and this Privacy Policy will be updated accordingly.</p>
+
+<h2>11. Data Retention</h2>
+<p>Because Version 1.0 stores transaction information locally, Novari does not maintain a separate server-side copy of that information. Local data remains on the device until deleted by the user, removed through operating-system or application storage controls, removed when the application is uninstalled, or otherwise affected by device-level data-management actions.</p>
+
+<h2>12. Data Deletion</h2>
+<p>Users can delete transaction information through available deletion functionality within Novari. Users may also remove Novari's locally stored application data or uninstall Novari. Because Version 1.0 does not maintain a Novari backend containing user transaction information, there is no Novari server-side transaction database requiring deletion.</p>
+
+<h2>13. Security</h2>
+<p>Novari is designed around a local-first, offline architecture for Version 1.0. Keeping financial information on the user's device reduces the need to transmit that information to a remote server. However, no software or storage mechanism can be guaranteed to be completely secure. Users are responsible for maintaining reasonable security of their device.</p>
+
+<h2>14. Children's Privacy</h2>
+<p>Novari does not currently impose a specific age restriction in its product design. Novari is a personal finance application intended for users who are able to understand and manage their own financial information. Parents or guardians should exercise appropriate judgment regarding a minor's use of financial applications.</p>
+
+<h2>15. Third-Party Services</h2>
+<p>Novari Version 1.0 does not currently use third-party services to process users' transaction data or SMS-derived financial information. The application may rely on operating-system and platform functionality necessary for basic operation.</p>
+
+<h2>16. Changes to This Privacy Policy</h2>
+<p>This Privacy Policy may be updated when Novari's functionality, data practices, legal requirements, or third-party services change. When material changes are made, the updated effective date will be shown at the beginning of this Privacy Policy.</p>
+
+<h2>17. Contact</h2>
+<p>If you have questions, concerns, or requests regarding privacy or how Novari handles information, contact:</p>
+<div class="card"><strong>Shiburaj RS</strong><br><a href="mailto:shiburaj525@gmail.com">shiburaj525@gmail.com</a></div>
+
+<h2>18. Summary</h2>
+<div class="notice"><strong>Your financial data stays on your device in Version 1.0.</strong><br>Relevant financial SMS messages are processed locally to extract transaction information. Novari does not currently operate a backend service, use analytics or crash-reporting services, or transmit transaction or SMS-derived information to external services.</div>
+
+  </div>
+</main>
+<footer>
+  <div class="container">
+    <strong>Novari</strong><br>
+    Operated by Shiburaj RS · <a href="mailto:shiburaj525@gmail.com">shiburaj525@gmail.com</a><br><br>
+    <a href="privacy-policy.html">Privacy Policy</a>
+    <a href="terms.html">Terms &amp; Conditions</a>
+  </div>
+</footer>
+</body>
+</html>

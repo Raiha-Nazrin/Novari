@@ -9,11 +9,15 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.novari.ui.components.LegalWebView
 import com.example.novari.ui.screens.dashboard.DashboardScreen
 import com.example.novari.ui.screens.onboarding.OnboardingScreen
+import com.example.novari.ui.screens.permissions.SetupPermissionRoute
 import com.example.novari.ui.screens.permissions.SetupPermissionScreen
 import com.example.novari.ui.screens.splash.SplashScreen
 import com.example.novari.ui.theme.NovariMotion
@@ -85,9 +89,17 @@ fun AppNavigation(
             route = Screen.Dashboard.route,
             enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION_MS)) }
         ) {
-            DashboardScreen(onEnableAutoTracking = {
+            DashboardScreen(
+                onEnableAutoTracking = {
                     navController.navigate(Screen.SetupPermission.route)
-                })
+                },
+                onOpenPrivacyPolicy = {
+                    navController.navigate(Screen.LegalDocument.createRoute(LegalDocType.PRIVACY_POLICY))
+                },
+                onOpenTerms = {
+                    navController.navigate(Screen.LegalDocument.createRoute(LegalDocType.TERMS))
+                }
+            )
         }
 
 
@@ -96,15 +108,29 @@ fun AppNavigation(
             enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION_MS)) },
             exitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION_MS)) }
         ) {
-            SetupPermissionScreen(
-               // onBack = { navController.popBackStack() }
-                // TODO: add/adjust params (e.g. onPermissionGranted, onPermissionDenied)
-                // once SetupPermissionScreen's real signature is confirmed.
+            SetupPermissionRoute(
+                onClose = { navController.popBackStack() }
             )
         }
 
+        composable(
+            route = Screen.LegalDocument.route,
+            arguments = listOf(
+                navArgument(Screen.LegalDocument.ARG_DOC_TYPE) { type = NavType.StringType }
+            ),
+            enterTransition = { forwardEnter() },
+            popExitTransition = { backExit() }
+        ) { backStackEntry ->
+            val docType = backStackEntry.arguments
+                ?.getString(Screen.LegalDocument.ARG_DOC_TYPE)
+                ?.let { LegalDocType.valueOf(it) }
+                ?: LegalDocType.PRIVACY_POLICY
 
-
-
+            LegalWebView(
+                assetPath = docType.assetPath,
+                title = docType.title,
+                onBack = { navController.popBackStack() }
+            )
+        }
     }
 }
