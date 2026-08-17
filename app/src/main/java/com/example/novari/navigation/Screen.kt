@@ -4,4 +4,6 @@ package com.example.novari.navigation
 sealed class Screen(val route: String) {
     data object Splash : Screen("splash")
     data object Onboarding : Screen("onboarding")
+    data object Dashboard : Screen("dashboard")
+    data object SetupPermission : Screen("setup_permission")
 }

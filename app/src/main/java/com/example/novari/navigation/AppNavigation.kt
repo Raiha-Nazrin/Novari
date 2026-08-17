@@ -2,6 +2,7 @@ package com.example.novari.navigation
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -11,10 +12,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.novari.ui.screens.dashboard.DashboardScreen
 import com.example.novari.ui.screens.onboarding.OnboardingScreen
+import com.example.novari.ui.screens.permissions.SetupPermissionScreen
 import com.example.novari.ui.screens.splash.SplashScreen
 import com.example.novari.ui.theme.NovariMotion
 
+private const val TRANSITION_DURATION_MS = 400
 private fun forwardEnter(): EnterTransition =
     slideInVertically(animationSpec = NovariMotion.Offset) { it / 6 } +
         fadeIn(animationSpec = NovariMotion.Float)
@@ -63,10 +67,44 @@ fun AppNavigation(
         ) {
             OnboardingScreen(
                 onOnboardingComplete = {
-                },
+                    navController.navigate(Screen.Dashboard.route) {
+                        // Onboarding is a one-time flow: remove it from the
+                        // back stack so Back from Dashboard doesn't return to it.
+                        popUpTo(Screen.Onboarding.route) { inclusive = true }
+                }},
                 onSkip = {
+
+                    navController.navigate(Screen.Dashboard.route) {
+                        popUpTo(Screen.Onboarding.route) { inclusive = true }
+                    }
                 }
             )
         }
+
+        composable(
+            route = Screen.Dashboard.route,
+            enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION_MS)) }
+        ) {
+            DashboardScreen(onEnableAutoTracking = {
+                    navController.navigate(Screen.SetupPermission.route)
+                })
+        }
+
+
+        composable(
+            route = Screen.SetupPermission.route,
+            enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION_MS)) },
+            exitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION_MS)) }
+        ) {
+            SetupPermissionScreen(
+               // onBack = { navController.popBackStack() }
+                // TODO: add/adjust params (e.g. onPermissionGranted, onPermissionDenied)
+                // once SetupPermissionScreen's real signature is confirmed.
+            )
+        }
+
+
+
+
     }
 }

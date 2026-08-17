@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,9 +31,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Lock
-import androidx.compose.material.icons.outlined.NotificationsNone
-import androidx.compose.material.icons.outlined.Security
-import androidx.compose.material.icons.outlined.Smartphone
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
@@ -92,7 +88,7 @@ fun SetupPermissionScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Image(
-                    painter = painterResource(R.drawable.ic_shield),
+                    painter = painterResource(R.drawable.ic_shield_auto_track),
                     contentDescription = null,
                     modifier = Modifier
 
