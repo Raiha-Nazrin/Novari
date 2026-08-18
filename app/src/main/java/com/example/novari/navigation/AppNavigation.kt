@@ -105,7 +105,7 @@ fun AppNavigation(
                     navController.navigate(Screen.Appearance.route)
                 },
                 onContactUs = {
-                    navController.navigate(Screen.Contact.route)
+                   // navController.navigate(Screen.Contact.route)
                 }
             )
         }
