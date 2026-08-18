@@ -18,6 +18,7 @@ import com.example.novari.ui.screens.home.mockHomeUiState
 import com.example.novari.ui.screens.insights.InsightsScreen
 import com.example.novari.ui.screens.search.SearchScreen
 import com.example.novari.ui.screens.settings.SettingsScreen
+import com.example.novari.ui.screens.transactions.AddTransactionScreen
 
 
 /**
@@ -80,7 +81,9 @@ fun DashboardScreen(
                 InsightsScreen()
             }
             composable(BottomNavItem.Add.route) {
-                AddExpenseScreen()
+                AddTransactionScreen(
+                    onNavigateBack = {}
+                )
             }
             composable(BottomNavItem.Search.route) {
                 SearchScreen()

@@ -35,6 +35,7 @@ abstract class PermissionsModule {
     object DataStoreProvider {
         @Provides
         @Singleton
+        @PermissionPrefs
         fun providePermissionDataStore(@ApplicationContext context: Context): DataStore<Preferences> =
             context.permissionDataStore
     }
