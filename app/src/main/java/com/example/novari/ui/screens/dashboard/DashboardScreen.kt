@@ -81,8 +81,7 @@ fun DashboardScreen(
                 InsightsScreen()
             }
             composable(BottomNavItem.Add.route) {
-                AddTransactionScreen(
-                    onNavigateBack = {}
+                AddExpenseScreen(
                 )
             }
             composable(BottomNavItem.Search.route) {
