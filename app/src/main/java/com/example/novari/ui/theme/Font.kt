@@ -16,3 +16,4 @@ val InterFontFamily = FontFamily(
 )
 
 val SerifFontFamily = FontFamily.Serif
+val SansSerifFontFamily = FontFamily.SansSerif

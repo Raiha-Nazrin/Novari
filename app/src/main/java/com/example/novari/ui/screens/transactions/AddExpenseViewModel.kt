@@ -1,5 +1,6 @@
 package com.example.novari.ui.screens.transactions
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.novari.core.database.entity.TransactionEntity
@@ -11,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -33,6 +35,16 @@ class AddExpenseViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AddExpenseUiState())
     val uiState: StateFlow<AddExpenseUiState> = _uiState.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            repository.observeActive()
+                .catch { error ->
+                    Log.e("ActiveTransactions", "Failed to observe transactions", error)
+                }
+                .collect { transactions ->
+                }
+        }
+    }
     fun onAmountChanged(value: String) {
         _uiState.update { it.copy(amountText = value, errorMessage = null) }
     }

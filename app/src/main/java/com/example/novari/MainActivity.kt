@@ -4,14 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import com.example.novari.navigation.AppNavigation
-import com.example.novari.ui.screens.permissions.SetupPermissionRoute
+import com.example.novari.sms.permission.SmsPermissionState
+import com.example.novari.sms.receiver.SmsSyncScheduler
 import com.example.novari.ui.theme.NovariTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -24,6 +19,13 @@ class MainActivity : ComponentActivity() {
             NovariTheme {
                 AppNavigation()
             }
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (SmsPermissionState.canRead(this)) {
+            SmsSyncScheduler.enqueue(this)
         }
     }
 }

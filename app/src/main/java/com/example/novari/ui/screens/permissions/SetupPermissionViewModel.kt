@@ -7,6 +7,7 @@ import com.example.novari.permissions.PermissionRequestHistoryStore
 import com.example.novari.permissions.PermissionStatus
 import com.example.novari.permissions.PermissionStatusResolver
 import com.example.novari.permissions.PermissionType
+import com.example.novari.sms.history.HistoricalSmsImportGate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
@@ -26,7 +27,8 @@ fun interface RationaleProvider {
 class SetupPermissionViewModel @Inject constructor(
     private val permissionChecker: PermissionChecker,
     private val historyStore: PermissionRequestHistoryStore,
-    private val resolver: PermissionStatusResolver
+    private val resolver: PermissionStatusResolver,
+    private val historicalSmsImportGate: HistoricalSmsImportGate
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SetupPermissionUiState())
@@ -37,6 +39,7 @@ class SetupPermissionViewModel @Inject constructor(
 
     fun refresh(rationale: RationaleProvider) {
         viewModelScope.launch {
+            val previousSms = _uiState.value.sms
             val sms = statusFor(PermissionType.SMS, rationale)
             val notifications = statusFor(PermissionType.NOTIFICATIONS, rationale)
             _uiState.value = _uiState.value.copy(
@@ -44,6 +47,9 @@ class SetupPermissionViewModel @Inject constructor(
                 notifications = notifications,
                 requestInFlight = null
             )
+            if (sms == PermissionStatus.GRANTED && previousSms != PermissionStatus.GRANTED) {
+                historicalSmsImportGate.triggerIfNeeded()
+            }
         }
     }
 
