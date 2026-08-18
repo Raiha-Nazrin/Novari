@@ -59,6 +59,7 @@ import com.example.novari.ui.screens.insights.charts.WeeklyChart
 import com.example.novari.ui.theme.NovariColors
 import com.example.novari.ui.theme.NovariShape
 import com.example.novari.ui.theme.NovariSpacing
+import com.example.novari.ui.theme.NovariTypography
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -83,16 +84,10 @@ fun InsightsScreen(
         modifier = modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(
-                start = NovariSpacing.gutter,
-                end = NovariSpacing.gutter,
-                top = systemBarsPadding.calculateTopPadding() + NovariSpacing.lg,
-                bottom = systemBarsPadding.calculateBottomPadding() + NovariSpacing.xxl
-            ),
+            modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)
+                .padding(top = 28.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(NovariSpacing.xl)
         ) {
 
@@ -141,14 +136,14 @@ private fun InsightsHeader() {
 
         Text(
             text = stringResource(R.string.insights_title),
-            style = MaterialTheme.typography.headlineLarge
+            style = NovariTypography.headlineMedium
         )
 
         Spacer(modifier = Modifier.height(NovariSpacing.sm))
 
         Text(
             text = stringResource(R.string.insights_subtitle),
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.bodyMedium,
         )
     }
 }

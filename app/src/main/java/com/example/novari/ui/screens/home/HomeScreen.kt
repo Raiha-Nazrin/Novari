@@ -64,8 +64,8 @@ fun HomeScreen(
     var selectedTransactionId by rememberSaveable { mutableStateOf<String?>(null) }
 
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+            .padding(top = 28.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         item {

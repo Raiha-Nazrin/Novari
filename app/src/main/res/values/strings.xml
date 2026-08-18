@@ -75,4 +75,14 @@
     <string name="insights_day_sat">Sat</string>
     <string name="insights_day_sun">Sun</string>
     <string name="settings">Settings</string>
+    <string name="search_transactions">Search transactions...</string>
+    <string name="clear_search">Clear search</string>
+    <string name="search_by">Search by</string>
+    <string name="recent_searches">Recent searches</string>
+    <string name="search">Search</string>
+    <string name="find_a_transaction_in_seconds">Find a transaction in seconds.</string>
+    <string name="merchant">Merchant</string>
+    <string name="category">Category</string>
+    <string name="amount">Amount</string>
+    <string name="date">Date</string>
 </resources>

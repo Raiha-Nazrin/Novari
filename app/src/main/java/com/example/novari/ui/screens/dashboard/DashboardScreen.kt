@@ -13,10 +13,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.novari.navigation.BottomNavItem
 import com.example.novari.ui.screens.AddExpenseScreen
-import com.example.novari.ui.screens.SearchScreen
 import com.example.novari.ui.screens.home.HomeScreen
 import com.example.novari.ui.screens.home.mockHomeUiState
 import com.example.novari.ui.screens.insights.InsightsScreen
+import com.example.novari.ui.screens.search.SearchScreen
 import com.example.novari.ui.screens.settings.SettingsScreen
 
 

@@ -25,16 +25,6 @@ fun AddExpenseScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun SearchScreen(modifier: Modifier = Modifier) {
-    PlaceholderContent(text = "Search", modifier = modifier)
-}
-
-@Composable
-fun ProfileScreen(modifier: Modifier = Modifier) {
-    PlaceholderContent(text = "Profile", modifier = modifier)
-}
-
-@Composable
 private fun PlaceholderContent(
     text: String,
     modifier: Modifier = Modifier
