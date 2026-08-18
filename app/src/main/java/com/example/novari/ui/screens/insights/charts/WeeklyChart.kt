@@ -35,6 +35,7 @@ fun WeeklyChart(
     if (values.size < 2) return
 
     val textMeasurer = rememberTextMeasurer()
+    val chartLineColor = NovariColors.ChartLine
 
     Column(modifier = modifier.fillMaxWidth()) {
         Canvas(
@@ -63,12 +64,12 @@ fun WeeklyChart(
 
             drawPath(
                 path = path,
-                color = NovariColors.ChartLine,
+                color = chartLineColor,
                 style = Stroke(width = StrokeWidth.toPx(), cap = StrokeCap.Round)
             )
 
             points.forEach {
-                drawCircle(color = NovariColors.ChartLine, radius = DotRadius.toPx(), center = it)
+                drawCircle(color = chartLineColor, radius = DotRadius.toPx(), center = it)
                 drawCircle(color = Color.White, radius = DotInnerRadius.toPx(), center = it)
             }
         }

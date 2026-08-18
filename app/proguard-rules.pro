@@ -24,3 +24,11 @@
 -keep class * extends androidx.work.ListenableWorker {
     public <init>(android.content.Context, androidx.work.WorkerParameters);
 }
+
+# Strip verbose/debug Timber calls (and their argument evaluation) from
+# release builds so debug-only logging never ships, even if ReleaseTree
+# is bypassed.
+-assumenosideeffects class timber.log.Timber {
+    public static void v(...);
+    public static void d(...);
+}

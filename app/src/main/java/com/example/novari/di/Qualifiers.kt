@@ -28,4 +28,8 @@ annotation class SecurityPrefs
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
+annotation class UserPrefs
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
 annotation class SmsPrefs

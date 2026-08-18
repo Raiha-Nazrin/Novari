@@ -85,4 +85,13 @@
     <string name="category">Category</string>
     <string name="amount">Amount</string>
     <string name="date">Date</string>
+    <string name="appearance">Appearance</string>
+    <string name="customize_how_novari_looks_for_you">Customize how Novari looks for you.</string>
+    <string name="theme">Theme</string>
+    <string name="light">Light</string>
+    <string name="clean_and_bright">Clean and bright</string>
+    <string name="dark">Dark</string>
+    <string name="easy_on_the_eyes">Easy on the eyes</string>
+    <string name="accent_color">Accent Color</string>
+    <string name="back">Back</string>
 </resources>

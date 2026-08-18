@@ -15,5 +15,8 @@ val InterFontFamily = FontFamily(
     Font(R.font.inter_extrabold, FontWeight.ExtraBold),
 )
 
-val SerifFontFamily = FontFamily.Serif
-val SansSerifFontFamily = FontFamily.SansSerif
+val SourceSerifFontFamily = FontFamily(
+    Font(R.font.source_serif_regular, FontWeight.Normal),
+    Font(R.font.source_serif_semibold, FontWeight.SemiBold),
+    Font(R.font.source_serif_bold, FontWeight.Bold),
+)

@@ -214,7 +214,7 @@ private fun PermissionCard(
             .clip(RoundedCornerShape(16.dp))
             .border(
                 width = 1.dp,
-                color = Color(0xFFE5E5E5),
+                color = NovariColors.Border,
                 shape = RoundedCornerShape(16.dp)
             )
             .background(Color.White)
@@ -247,7 +247,7 @@ private fun PermissionCard(
                         fontSize = 14.sp
                     ),
                     fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF202124)
+                    color = NovariColors.Navy
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -258,7 +258,7 @@ private fun PermissionCard(
                         fontSize = 12.sp
                     ),
                     lineHeight = 19.sp,
-                    color = Color(0xFF14736D)
+                    color = NovariColors.DarkTeal
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
@@ -269,7 +269,7 @@ private fun PermissionCard(
                         fontSize = 12.sp
                     ),
                     lineHeight = 18.sp,
-                    color = Color(0xFF666666)
+                    color = NovariColors.Slate
                 )
             }
         }
@@ -277,7 +277,7 @@ private fun PermissionCard(
         Spacer(modifier = Modifier.height(16.dp))
 
         HorizontalDivider(
-            color = Color(0xFFE5E5E5),
+            color = NovariColors.Border,
             thickness = 1.dp
         )
 
@@ -288,7 +288,7 @@ private fun PermissionCard(
         val isDenied = status == PermissionStatus.DENIED || status == PermissionStatus.PERMANENTLY_DENIED
 
         val labelColor by animateColorAsState(
-            targetValue = if (isDenied) NovariColors.Error else Color(0xFF666666),
+            targetValue = if (isDenied) NovariColors.Error else NovariColors.Slate,
             animationSpec = NovariMotion.Colour,
             label = "permissionLabelColor"
         )
@@ -307,7 +307,7 @@ private fun PermissionCard(
                 Icon(
                     imageVector = Icons.Outlined.Lock,
                     contentDescription = null,
-                    tint = Color(0xFF606060),
+                    tint = NovariColors.Slate,
                     modifier = Modifier.size(18.dp)
                 )
 
@@ -351,7 +351,7 @@ private fun PermissionCard(
                     else -> Icons.AutoMirrored.Filled.ArrowForward
                 }
                 val actionTint by animateColorAsState(
-                    targetValue = if (targetDenied) NovariColors.Error else Color(0xFF14736D),
+                    targetValue = if (targetDenied) NovariColors.Error else NovariColors.DarkTeal,
                     animationSpec = NovariMotion.Colour,
                     label = "permissionActionTint"
                 )
