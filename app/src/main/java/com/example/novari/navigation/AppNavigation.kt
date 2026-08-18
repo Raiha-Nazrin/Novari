@@ -16,10 +16,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.novari.ui.components.LegalWebView
 import com.example.novari.ui.screens.dashboard.DashboardScreen
-import com.example.novari.ui.screens.onboarding.OnboardingScreen
+import com.example.novari.ui.screens.onboarding.OnboardingRoute
 import com.example.novari.ui.screens.permissions.SetupPermissionRoute
 import com.example.novari.ui.screens.permissions.SetupPermissionScreen
-import com.example.novari.ui.screens.splash.SplashScreen
+import com.example.novari.ui.screens.settings.appearnce.AppearanceRoute
+import com.example.novari.ui.screens.settings.support.SupportScreen
+import com.example.novari.ui.screens.splash.SplashRoute
 import com.example.novari.ui.theme.NovariMotion
 
 private const val TRANSITION_DURATION_MS = 400
@@ -52,11 +54,11 @@ fun AppNavigation(
             // Nothing to push against, and it is the app's first frame: a pure fade suffices.
             exitTransition = { fadeOut(animationSpec = NovariMotion.Float) }
         ) {
-            SplashScreen(
-                onSplashFinished = {
-                    navController.navigate(Screen.Onboarding.route) {
+            SplashRoute(
+                onNavigateToStart = { startDestination ->
+                    navController.navigate(startDestination) {
                         // Removes Splash from the back stack so Back from
-                        // Onboarding does not return to it.
+                        // the next screen does not return to it.
                         popUpTo(Screen.Splash.route) { inclusive = true }
                     }
                 }
@@ -69,7 +71,7 @@ fun AppNavigation(
             popEnterTransition = { backEnter() },
             popExitTransition = { backExit() }
         ) {
-            OnboardingScreen(
+            OnboardingRoute(
                 onOnboardingComplete = {
                     navController.navigate(Screen.Dashboard.route) {
                         // Onboarding is a one-time flow: remove it from the
@@ -98,7 +100,30 @@ fun AppNavigation(
                 },
                 onOpenTerms = {
                     navController.navigate(Screen.LegalDocument.createRoute(LegalDocType.TERMS))
+                },
+                onAppearanceClick = {
+                    navController.navigate(Screen.Appearance.route)
+                },
+                onContactUs = {
+                    navController.navigate(Screen.Contact.route)
                 }
+            )
+        }
+
+        composable(
+            route = Screen.Appearance.route,
+            enterTransition = { forwardEnter() },
+            popEnterTransition = { backEnter() },
+            popExitTransition = { backExit() }
+        ) {
+            AppearanceRoute(
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable(route = Screen.Contact.route) {
+            SupportScreen(
+                onBackClick = {}
             )
         }
 

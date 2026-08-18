@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import timber.log.Timber
 
 object PermissionSettingsIntents {
 
@@ -20,7 +21,8 @@ object PermissionSettingsIntents {
 
         try {
             context.startActivity(intent)
-        } catch (_: ActivityNotFoundException) {
+        } catch (e: ActivityNotFoundException) {
+            Timber.w(e, "No activity found for %s settings intent, falling back to app details", type)
             context.startActivity(appDetailsIntent(context))
         }
     }

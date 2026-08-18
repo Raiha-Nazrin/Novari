@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.math.BigDecimal
 import java.math.RoundingMode
 import javax.inject.Inject
@@ -88,7 +89,8 @@ class AddExpenseViewModel @Inject constructor(
 
                     }
                 }
-            }.onFailure { e->
+            }.onFailure { e ->
+                Timber.e(e, "Failed to save expense")
                 _uiState.update {
                     it.copy(
                         isSaving = false,

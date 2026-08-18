@@ -37,6 +37,8 @@ fun DashboardScreen(
     onEnableAutoTracking: () -> Unit = {},
     onOpenPrivacyPolicy: () -> Unit = {},
     onOpenTerms: () -> Unit = {},
+    onAppearanceClick: () -> Unit = {},
+    onContactUs: () -> Unit = {},
     dashboardNavController: NavHostController = rememberNavController()
 ) {
     val currentBackStackEntry by dashboardNavController.currentBackStackEntryAsState()
@@ -90,7 +92,9 @@ fun DashboardScreen(
             composable(BottomNavItem.Profile.route) {
                 SettingsScreen(
                     onPrivacyPolicyClick = onOpenPrivacyPolicy,
-                    onTermsClick = onOpenTerms
+                    onTermsClick = onOpenTerms,
+                    onAppearanceClick = onAppearanceClick,
+                    onContactUsClick = onContactUs
                 )
             }
         }

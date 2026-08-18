@@ -25,3 +25,7 @@ annotation class PermissionPrefs
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class SecurityPrefs
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class UserPrefs
