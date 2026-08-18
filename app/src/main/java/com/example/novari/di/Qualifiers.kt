@@ -17,3 +17,11 @@ annotation class MainDispatcher
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class ApplicationScope
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class PermissionPrefs
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class SecurityPrefs

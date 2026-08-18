@@ -4,13 +4,14 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import com.example.novari.di.PermissionPrefs
 import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class DataStorePermissionRequestHistoryStore @Inject constructor(
-    private val dataStore: DataStore<Preferences>
+    @PermissionPrefs private val dataStore: DataStore<Preferences>
 ) : PermissionRequestHistoryStore {
 
     override suspend fun hasBeenRequested(type: PermissionType): Boolean =
