@@ -22,6 +22,8 @@ import com.example.novari.ui.screens.permissions.SetupPermissionScreen
 import com.example.novari.ui.screens.settings.appearnce.AppearanceRoute
 import com.example.novari.ui.screens.settings.support.SupportScreen
 import com.example.novari.ui.screens.splash.SplashRoute
+import com.example.novari.ui.screens.splash.SplashScreen
+import com.example.novari.ui.screens.transactions.transaction_list.TransactionListScreen
 import com.example.novari.ui.theme.NovariMotion
 
 private const val TRANSITION_DURATION_MS = 400
@@ -101,6 +103,10 @@ fun AppNavigation(
                 onOpenTerms = {
                     navController.navigate(Screen.LegalDocument.createRoute(LegalDocType.TERMS))
                 },
+
+                onSeeAllTransactions = {
+                    navController.navigate(Screen.TransactionList.route)
+                },
                 onAppearanceClick = {
                     navController.navigate(Screen.Appearance.route)
                 },
@@ -125,6 +131,12 @@ fun AppNavigation(
             SupportScreen(
                 onBackClick = {}
             )
+        }
+
+        composable(route = Screen.TransactionList.route) {
+            TransactionListScreen(onBackClick = {
+                navController.popBackStack()
+            })
         }
 
 

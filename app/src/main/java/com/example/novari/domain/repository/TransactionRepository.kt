@@ -10,5 +10,7 @@ interface TransactionRepository {
     suspend fun findById(id: String): TransactionEntity?
     suspend fun findBySourceReference(reference: String): TransactionEntity?
     fun observeActive(): Flow<List<TransactionEntity>>
+    fun observeRecent(limit: Int): Flow<List<TransactionEntity>>
+    fun observeBetween(startInclusive: Long, endInclusive: Long): Flow<List<TransactionEntity>>
     fun searchActive(query: String): Flow<List<TransactionEntity>>
 }

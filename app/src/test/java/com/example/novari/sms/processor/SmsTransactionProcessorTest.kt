@@ -31,6 +31,9 @@ private class FakeTransactionRepository : TransactionRepository {
         bySourceReference[reference]
 
     override fun observeActive(): Flow<List<TransactionEntity>> = MutableStateFlow(created)
+    override fun observeRecent(limit: Int): Flow<List<TransactionEntity>> = MutableStateFlow(created.take(limit))
+    override fun observeBetween(startInclusive: Long, endInclusive: Long): Flow<List<TransactionEntity>> =
+        MutableStateFlow(created.filter { it.transactionDate in startInclusive..endInclusive })
     override fun searchActive(query: String): Flow<List<TransactionEntity>> = MutableStateFlow(created)
 }
 
@@ -46,6 +49,11 @@ private class FakeSmsProcessingRepository : SmsProcessingRepository {
         byFingerprint[record.fingerprint] = record
         saved += record
         return true
+    }
+
+    override suspend fun deleteByStatus(status: SmsProcessingStatus) {
+        saved.removeAll { it.status == status }
+        byFingerprint.values.removeAll { it.status == status }
     }
 }
 
@@ -133,6 +141,45 @@ class SmsTransactionProcessorTest {
 
         assertEquals(1, transactionRepository.created.size)
         assertEquals(1, smsProcessingRepository.saved.size)
+    }
+
+    @Test
+    fun `sbi upi debit alert with no currency token is processed, not FAILED`() = runTest {
+        val transactionRepository = FakeTransactionRepository()
+        val smsProcessingRepository = FakeSmsProcessingRepository()
+        val processor = newProcessor(transactionRepository, smsProcessingRepository)
+
+        processor.process(
+            RawSmsMessage(
+                sender = "JK-SBIUPI-S",
+                body = "Dear UPI user A/C X2851 debited by 30.00 on date 03Aug26 trf to SHABEER V K " +
+                    "Refno 621555777395 If not u? call-1800111109 for other services-18001234-SBI",
+                timestamp = System.currentTimeMillis()
+            )
+        )
+
+        assertEquals(1, transactionRepository.created.size)
+        assertEquals(3000L, transactionRepository.created.single().amountMinor)
+        assertEquals(SmsProcessingStatus.PROCESSED, smsProcessingRepository.saved.single().status)
+    }
+
+    @Test
+    fun `retail promo blast is IGNORED, not booked as a transaction`() = runTest {
+        val transactionRepository = FakeTransactionRepository()
+        val smsProcessingRepository = FakeSmsProcessingRepository()
+        val processor = newProcessor(transactionRepository, smsProcessingRepository)
+
+        processor.process(
+            RawSmsMessage(
+                sender = "VM-EASYBY-P",
+                body = "LAST 5 DAYS! Flat Price Sale@EasyBuy-Kozhikode Everything under Rs199 on Sale " +
+                    "Merchandise Ends 30 June Tees@99 Shirts@199 Kurtas@199 Kidswear@99 T&C",
+                timestamp = System.currentTimeMillis()
+            )
+        )
+
+        assertEquals(0, transactionRepository.created.size)
+        assertEquals(SmsProcessingStatus.IGNORED, smsProcessingRepository.saved.single().status)
     }
 
     @Test

@@ -58,6 +58,7 @@ fun SetupPermissionScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(NovariColors.Background)
             .padding(horizontal = 20.dp, vertical = 20.dp)
     ) {
 

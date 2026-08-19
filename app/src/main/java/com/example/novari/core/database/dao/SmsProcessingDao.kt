@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.novari.core.database.entity.SmsProcessingEntity
+import com.example.novari.core.database.entity.SmsProcessingStatus
 
 @Dao
 interface SmsProcessingDao {
@@ -19,4 +20,7 @@ interface SmsProcessingDao {
 
     @Query("SELECT * FROM sms_processing WHERE fingerprint = :fingerprint LIMIT 1")
     suspend fun findByFingerprint(fingerprint: String): SmsProcessingEntity?
+
+    @Query("DELETE FROM sms_processing WHERE status = :status")
+    suspend fun deleteByStatus(status: SmsProcessingStatus)
 }

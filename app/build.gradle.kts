@@ -94,4 +94,10 @@ dependencies {
     androidTestImplementation("androidx.work:work-testing:2.11.2")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+
+    // The view calendar library for Android
+    implementation("com.kizitonwose.calendar:view:2.10.1")
+
+    // The compose calendar library for Android
+    implementation("com.kizitonwose.calendar:compose:2.10.1")
 }

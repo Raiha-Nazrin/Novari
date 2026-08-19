@@ -40,6 +40,12 @@ class RoomTransactionRepository @Inject constructor(
     override fun observeActive(): Flow<List<TransactionEntity>> =
         dao.observeActive()
 
+    override fun observeRecent(limit: Int): Flow<List<TransactionEntity>> =
+        dao.observeRecent(limit)
+
+    override fun observeBetween(startInclusive: Long, endInclusive: Long): Flow<List<TransactionEntity>> =
+        dao.observeBetween(startInclusive, endInclusive)
+
     override fun searchActive(query: String): Flow<List<TransactionEntity>> =
         dao.searchActive(query)
 }

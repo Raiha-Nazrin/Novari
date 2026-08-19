@@ -2,6 +2,7 @@ package com.example.novari.sms.repository
 
 import com.example.novari.core.database.dao.SmsProcessingDao
 import com.example.novari.core.database.entity.SmsProcessingEntity
+import com.example.novari.core.database.entity.SmsProcessingStatus
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,4 +16,7 @@ class RoomSmsProcessingRepository @Inject constructor(
 
     override suspend fun save(record: SmsProcessingEntity): Boolean =
         dao.insert(record) != -1L
+
+    override suspend fun deleteByStatus(status: SmsProcessingStatus) =
+        dao.deleteByStatus(status)
 }

@@ -5,6 +5,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -14,7 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.novari.navigation.BottomNavItem
 import com.example.novari.ui.screens.AddExpenseScreen
 import com.example.novari.ui.screens.home.HomeScreen
-import com.example.novari.ui.screens.home.mockHomeUiState
+import com.example.novari.ui.screens.home.HomeViewModel
 import com.example.novari.ui.screens.insights.InsightsScreen
 import com.example.novari.ui.screens.search.SearchScreen
 import com.example.novari.ui.screens.settings.SettingsScreen
@@ -37,6 +39,7 @@ fun DashboardScreen(
     onEnableAutoTracking: () -> Unit = {},
     onOpenPrivacyPolicy: () -> Unit = {},
     onOpenTerms: () -> Unit = {},
+    onSeeAllTransactions: ()-> Unit = {},
     onAppearanceClick: () -> Unit = {},
     onContactUs: () -> Unit = {},
     dashboardNavController: NavHostController = rememberNavController()
@@ -68,15 +71,17 @@ fun DashboardScreen(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.Home.route) {
+                val homeViewModel: HomeViewModel = hiltViewModel()
+                val uiState by homeViewModel.uiState.collectAsStateWithLifecycle()
                 HomeScreen(
-                    uiState = mockHomeUiState,
+                    uiState = uiState,
                     onEnableAutoTracking = /* wire to future auto-tracking flow */
                         onEnableAutoTracking,
                     onAddExpenseManually = { /*  navigate to Add Expense flow */ },
                     onTransactionClick = { /* : expand/collapse handled internally for now */ },
                     onEditTransaction = { /*  wire to future edit flow */ },
                     onDeleteTransaction = { /*  wire to future delete flow */ },
-                    onSeeAllTransactions = { /*  navigate to a full transactions screen */ }
+                    onSeeAllTransactions = onSeeAllTransactions
                 )
             }
             composable(BottomNavItem.Insights.route) {

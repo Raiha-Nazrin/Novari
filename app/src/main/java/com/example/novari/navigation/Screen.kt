@@ -11,6 +11,8 @@ sealed class Screen(val route: String) {
 
     data object Contact: Screen("contact")
 
+    data object TransactionList : Screen("transaction_list")
+
     data object LegalDocument : Screen("legal_document/{docType}") {
         const val ARG_DOC_TYPE = "docType"
         fun createRoute(docType: LegalDocType) = "legal_document/${docType.name}"

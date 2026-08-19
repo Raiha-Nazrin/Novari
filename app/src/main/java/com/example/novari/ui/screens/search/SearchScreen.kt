@@ -183,7 +183,7 @@ fun SearchScreen(
 }
 
 @Composable
-private fun SearchHeader(
+fun SearchHeader(
     onBackClick: () -> Unit,
     onNotificationClick: () -> Unit
 ) {

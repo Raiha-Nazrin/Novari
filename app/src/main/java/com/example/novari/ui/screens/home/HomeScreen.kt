@@ -39,10 +39,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.novari.R
-import com.example.novari.ui.screens.transactions.AddExpenseViewModel
+import com.example.novari.ui.components.TransactionRowItem
+import com.example.novari.ui.components.formatTransactionAmount
+import com.example.novari.ui.model.Transaction
+import com.example.novari.ui.theme.NovariColors
 
 /**
  * Home dashboard screen. UI-only: all data arrives via [uiState] and every
@@ -62,39 +66,50 @@ fun HomeScreen(
     onEditTransaction: (Transaction) -> Unit = {},
     onDeleteTransaction: (Transaction) -> Unit = {},
     onSeeAllTransactions: () -> Unit = {},
-    viewModel: AddExpenseViewModel = hiltViewModel(),
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     var selectedTransactionId by rememberSaveable { mutableStateOf<String?>(null) }
 
     LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
             .padding(top = 28.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         item {
-            HomeHeader(userName = uiState.userName)
+            HomeHeader(viewModel)
         }
 
         item {
-            MonthlyExpenseCard(
-                amount = uiState.monthlyExpense,
-                percentageChange = uiState.monthlyPercentageChange,
-                isLessThanLastMonth = uiState.isLessThanLastMonth
-            )
+
+                MonthlyExpenseCard(
+                    amount = uiState.monthlyExpense,
+                    percentageChange = uiState.monthlyPercentageChange,
+                    isLessThanLastMonth = uiState.isLessThanLastMonth
+                )
+
+
         }
 
         item {
-            TodayExpenseCard(
-                amount = uiState.todayExpense,
-                message = uiState.todayMessage
-            )
+
+                TodayExpenseCard(
+                    amount = uiState.todayExpense,
+                    message = uiState.todayMessage
+                )
+
+
         }
 
-        item {
-            AutoTrackingCard(
-                onEnableAutoTracking = onEnableAutoTracking,
-                onAddExpenseManually = onAddExpenseManually
-            )
+        if (uiState.autoTrackingPrompt == AutoTrackingPromptVisibility.Visible) {
+            item(key = "auto_tracking_card") {
+                AutoTrackingCard(
+                    onEnableAutoTracking = onEnableAutoTracking,
+                    onAddExpenseManually = onAddExpenseManually,
+                    modifier = Modifier.animateItem()
+                )
+            }
         }
 
         item {
@@ -111,12 +126,17 @@ fun HomeScreen(
                     onDeleteTransaction(transaction)
                     selectedTransactionId = null
                 },
-                onSeeAllTransactions = onSeeAllTransactions
+                onSeeAllTransactions = onSeeAllTransactions,
+                onEnableAutoTracking = onEnableAutoTracking,
+                showEnableTracking = uiState.autoTrackingPrompt == AutoTrackingPromptVisibility.Visible
             )
         }
 
         item {
-            InsightCard(message = uiState.insightMessage)
+            if(uiState.transactions.isNotEmpty()){
+                InsightCard(message = uiState.insightMessage)
+            }
+
         }
     }
 }
@@ -126,23 +146,23 @@ fun HomeScreen(
  */
 @Composable
 private fun HomeHeader(
-    userName: String,
-    modifier: Modifier = Modifier
+    viewModel: HomeViewModel
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top
     ) {
         Column {
-
             Text(
-                text = "Good morning 👋",
+                text = viewModel.getGreeting(),
                 style = MaterialTheme.typography.headlineMedium
             )
         }
 
-        IconButton(onClick = { /*  open notifications */ }) {
+        IconButton(
+            onClick = { /* Open notifications */ }
+        ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_notification),
                 contentDescription = "Notifications",
@@ -180,7 +200,7 @@ private fun MonthlyExpenseCard(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "₹${formatAmount(amount)}",
+            text = "₹${formatTransactionAmount(amount)}",
             style = MaterialTheme.typography.headlineSmall
         )
 
@@ -253,7 +273,7 @@ private fun TodayExpenseCard(
             )
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = "₹${formatAmount(amount)}",
+                    text = "₹${formatTransactionAmount(amount)}",
                     style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.width(4.dp))
@@ -306,7 +326,7 @@ private fun AutoTrackingCard(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Let Novari do the heavy lifting.",
+            text = stringResource(R.string.let_novari_do_the_heavy_lifting),
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -352,7 +372,9 @@ private fun RecentTransactionsSection(
     onEditTransaction: (Transaction) -> Unit,
     onDeleteTransaction: (Transaction) -> Unit,
     onSeeAllTransactions: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEnableAutoTracking : () -> Unit,
+    showEnableTracking: Boolean = false
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -361,11 +383,11 @@ private fun RecentTransactionsSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Recent transactions",
+                text = stringResource(R.string.recent_transactions),
                 style = MaterialTheme.typography.titleMedium
             )
             TextButton(onClick = onSeeAllTransactions) {
-                Text(text = "See all →", color = MaterialTheme.colorScheme.primary)
+                Text(text = stringResource(R.string.see_all), color = MaterialTheme.colorScheme.primary)
             }
         }
 
@@ -374,12 +396,49 @@ private fun RecentTransactionsSection(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(vertical = 12.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(MaterialTheme.colorScheme.surface)
                 .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp))
         ) {
+            if (transactions.isEmpty()) {
+                Image(painter = painterResource(R.drawable.img_no_transaction), contentDescription = "",
+                    modifier= Modifier
+                        .height(120.dp)
+                        .fillMaxWidth())
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = stringResource(R.string.no_transactions_yet_add_one_to_see_it_here),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                )
+
+                if(showEnableTracking){
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = stringResource(R.string.enable_auto_tracking),
+                        color = NovariColors.DarkTeal,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.fillMaxWidth().clickable {
+                            onEnableAutoTracking()
+                        },
+                        textAlign = TextAlign.Center
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+            }
             transactions.forEachIndexed { index, transaction ->
-                TransactionItem(
+                TransactionRowItem(
                     transaction = transaction,
                     isSelected = transaction.id == selectedTransactionId,
                     onClick = { onTransactionClick(transaction) },
@@ -388,101 +447,6 @@ private fun RecentTransactionsSection(
                 )
                 if (index != transactions.lastIndex) {
                     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun TransactionItem(
-    transaction: Transaction,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(16.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = transaction.iconRes),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = transaction.title, style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    text = "${transaction.category} · ${transaction.date}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Text(
-                text = "₹${formatAmount(transaction.amount)}",
-                style = MaterialTheme.typography.labelLarge
-            )
-
-            Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_right),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp).padding(start = 4.dp)
-            )
-        }
-
-        AnimatedVisibility(visible = isSelected) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onEdit,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_edit),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "Edit")
-                }
-
-                Button(
-                    onClick = onDelete,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "Delete")
                 }
             }
         }
@@ -534,9 +498,4 @@ private fun InsightCard(
             )
         }
     }
-}
-
-private fun formatAmount(amount: Int): String {
-    // Simple thousands-separator formatting (e.g. 24560 -> 24,560).
-    return "%,d".format(amount)
 }

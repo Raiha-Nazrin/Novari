@@ -85,6 +85,8 @@
     <string name="category">Category</string>
     <string name="amount">Amount</string>
     <string name="date">Date</string>
+    <string name="recent_transactions">Recent transactions</string>
+    <string name="see_all">See all →</string>
     <string name="appearance">Appearance</string>
     <string name="customize_how_novari_looks_for_you">Customize how Novari looks for you.</string>
     <string name="theme">Theme</string>
@@ -94,4 +96,11 @@
     <string name="easy_on_the_eyes">Easy on the eyes</string>
     <string name="accent_color">Accent Color</string>
     <string name="back">Back</string>
+    <string name="transaction_history">Transaction History</string>
+    <string name="all_your_spending_organized_by_day">All your spending organized by day</string>
+    <string name="transactions_count">%d transactions</string>
+    <string name="no_transactions_this_month">No transactions this month yet.</string>
+    <string name="no_transactions_match_search">No transactions match your search.</string>
+    <string name="no_transactions_yet_add_one_to_see_it_here">No transactions yet — add one to see it here.</string>
+    <string name="let_novari_do_the_heavy_lifting">Let Novari do the heavy lifting.</string>
 </resources>

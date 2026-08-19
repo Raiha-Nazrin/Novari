@@ -18,6 +18,8 @@ class SmsSyncWorker(appContext: Context, params: WorkerParameters) : CoroutineWo
     override suspend fun doWork(): Result {
         return runCatching {
             val entryPoint = EntryPointAccessors.fromApplication(applicationContext, SmsEntryPoint::class.java)
+            entryPoint.smsReparseGate().reconcileIfNeeded()
+
             val dataStore = entryPoint.smsPrefsDataStore()
             val now = System.currentTimeMillis()
             val from = dataStore.data.first()[LAST_PROCESSED_KEY] ?: now
