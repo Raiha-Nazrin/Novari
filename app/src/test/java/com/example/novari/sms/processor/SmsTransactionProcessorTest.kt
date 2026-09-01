@@ -1,5 +1,6 @@
 package com.example.novari.sms.processor
 
+import com.example.novari.core.database.dao.MerchantSummary
 import com.example.novari.core.database.entity.SmsProcessingEntity
 import com.example.novari.core.database.entity.SmsProcessingStatus
 import com.example.novari.core.database.entity.TransactionEntity
@@ -43,12 +44,14 @@ private class FakeTransactionRepository : TransactionRepository {
     override fun searchActive(query: String): Flow<List<TransactionEntity>> = MutableStateFlow(created)
     override fun observeSearch(
         merchantQuery: String?,
+        merchantKeys: Set<String>,
         categoryIds: Set<String>,
         minAmountMinor: Long?,
         maxAmountMinor: Long?,
         startInclusive: Long?,
         endInclusive: Long?
     ): Flow<List<TransactionEntity>> = MutableStateFlow(emptyList())
+    override fun observeMerchants(): Flow<List<MerchantSummary>> = MutableStateFlow(emptyList())
 }
 
 private class FakeSmsProcessingRepository : SmsProcessingRepository {

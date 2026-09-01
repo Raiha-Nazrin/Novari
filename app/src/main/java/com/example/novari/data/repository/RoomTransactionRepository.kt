@@ -1,5 +1,6 @@
 package com.example.novari.data.repository
 
+import com.example.novari.core.database.dao.MerchantSummary
 import com.example.novari.core.database.dao.TransactionDao
 import com.example.novari.core.database.entity.TransactionEntity
 import com.example.novari.core.model.TransactionSource
@@ -80,6 +81,7 @@ class RoomTransactionRepository @Inject constructor(
 
     override fun observeSearch(
         merchantQuery: String?,
+        merchantKeys: Set<String>,
         categoryIds: Set<String>,
         minAmountMinor: Long?,
         maxAmountMinor: Long?,
@@ -87,6 +89,8 @@ class RoomTransactionRepository @Inject constructor(
         endInclusive: Long?
     ): Flow<List<TransactionEntity>> = dao.observeSearch(
         merchantQuery = merchantQuery?.trim()?.takeIf { it.isNotEmpty() },
+        hasMerchantFilter = merchantKeys.isNotEmpty(),
+        merchantKeys = merchantKeys.toList(),
         hasCategoryFilter = categoryIds.isNotEmpty(),
         categoryIds = categoryIds.toList(),
         minAmountMinor = minAmountMinor,
@@ -94,4 +98,7 @@ class RoomTransactionRepository @Inject constructor(
         startInclusive = startInclusive,
         endInclusive = endInclusive
     )
+
+    override fun observeMerchants(): Flow<List<MerchantSummary>> =
+        dao.observeMerchants()
 }

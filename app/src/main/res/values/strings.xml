@@ -124,6 +124,10 @@
     <string name="search_placeholder_category">Search by category name…</string>
     <string name="search_placeholder_amount">e.g. 500 or 100-500</string>
     <string name="search_placeholder_date">Pick a date to search…</string>
+    <string name="select_merchant">Select Merchant</string>
+    <string name="all_merchants">All</string>
+    <string name="no_merchants_yet">No merchants yet.</string>
+    <string name="search_merchants">Search merchants…</string>
     <string name="amount_range">Amount range</string>
     <string name="no_transactions_yet_add_one_to_see_it_here">No transactions yet — add one to see it here.</string>
     <string name="let_novari_do_the_heavy_lifting">Let Novari do the heavy lifting.</string>

@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import com.example.novari.core.database.dao.MerchantSummary
 import com.example.novari.core.database.entity.SmsProcessingEntity
 import com.example.novari.core.database.entity.SmsProcessingStatus
 import com.example.novari.core.database.entity.TransactionEntity
@@ -98,12 +99,14 @@ private class FakeReparseTransactionRepository : TransactionRepository {
     override fun searchActive(query: String): Flow<List<TransactionEntity>> = MutableStateFlow(transactions.values.toList())
     override fun observeSearch(
         merchantQuery: String?,
+        merchantKeys: Set<String>,
         categoryIds: Set<String>,
         minAmountMinor: Long?,
         maxAmountMinor: Long?,
         startInclusive: Long?,
         endInclusive: Long?
     ): Flow<List<TransactionEntity>> = MutableStateFlow(emptyList())
+    override fun observeMerchants(): Flow<List<MerchantSummary>> = MutableStateFlow(emptyList())
 }
 
 private fun testTransaction(id: String, revision: Long = 1L, deletedAt: Long? = null) = TransactionEntity(

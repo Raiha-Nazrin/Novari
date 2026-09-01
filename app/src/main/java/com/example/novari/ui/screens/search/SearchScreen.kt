@@ -59,6 +59,7 @@ import com.example.novari.core.model.SearchField
 import com.example.novari.ui.components.AmountRangeBottomSheet
 import com.example.novari.ui.components.CalendarBottomSheet
 import com.example.novari.ui.components.CategoryBottomSheetContent
+import com.example.novari.ui.components.MerchantBottomSheetContent
 import com.example.novari.ui.components.ScreenHeader
 import com.example.novari.ui.components.TransactionRowItem
 import com.example.novari.ui.model.Transaction
@@ -78,9 +79,11 @@ fun SearchScreen(
     val focusManager = LocalFocusManager.current
 
     var showCategorySheet by rememberSaveable { mutableStateOf(false) }
+    var showMerchantSheet by rememberSaveable { mutableStateOf(false) }
     var showAmountSheet by rememberSaveable { mutableStateOf(false) }
     var showCalendar by rememberSaveable { mutableStateOf(false) }
     var pendingCategorySelection by rememberSaveable { mutableStateOf(uiState.selectedCategoryIds) }
+    var pendingMerchantSelection by rememberSaveable { mutableStateOf(uiState.selectedMerchantKeys) }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
@@ -132,11 +135,9 @@ fun SearchScreen(
                 SearchFilterGrid(
                     selectedField = uiState.searchField,
                     onMerchantClick = {
-                        // TODO(merchant): open a merchant picker sheet here once merchant is a
-                        // real entity (see MerchantCategoryRuleEntity for the normalization
-                        // pattern it'll likely follow). Until then this only scopes the typed
-                        // query to the free-text `merchant` column already on TransactionEntity.
                         viewModel.onSearchFieldSelected(SearchField.MERCHANT)
+                        pendingMerchantSelection = uiState.selectedMerchantKeys
+                        showMerchantSheet = true
                     },
                     onCategoryClick = {
                         viewModel.onSearchFieldSelected(SearchField.CATEGORY)
@@ -266,6 +267,26 @@ fun SearchScreen(
                     viewModel.clearAddCategoryError()
                 },
                 addCategoryError = uiState.addCategoryError
+            )
+        }
+    }
+
+    if (showMerchantSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showMerchantSheet = false },
+            sheetState = sheetState,
+            containerColor = NovariColors.Background,
+            dragHandle = { BottomSheetDefaults.DragHandle(color = NovariColors.Border) }
+        ) {
+            MerchantBottomSheetContent(
+                merchants = uiState.merchants,
+                selectedMerchantKeys = pendingMerchantSelection,
+                onSelectionChanged = { pendingMerchantSelection = it },
+                onApply = {
+                    showMerchantSheet = false
+                    viewModel.setMerchantFilter(pendingMerchantSelection)
+                },
+                onDismiss = { showMerchantSheet = false }
             )
         }
     }

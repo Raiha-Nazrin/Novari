@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import com.example.novari.core.database.dao.CategoryDao
+import com.example.novari.core.database.dao.MerchantSummary
 import com.example.novari.core.database.entity.CategoryEntity
 import com.example.novari.core.database.entity.TransactionEntity
 import com.example.novari.core.model.TransactionSource
@@ -48,12 +49,14 @@ private class FakeTransactionRepository(
     override fun searchActive(query: String): Flow<List<TransactionEntity>> = MutableStateFlow(recent)
     override fun observeSearch(
         merchantQuery: String?,
+        merchantKeys: Set<String>,
         categoryIds: Set<String>,
         minAmountMinor: Long?,
         maxAmountMinor: Long?,
         startInclusive: Long?,
         endInclusive: Long?
     ): Flow<List<TransactionEntity>> = MutableStateFlow(emptyList())
+    override fun observeMerchants(): Flow<List<MerchantSummary>> = MutableStateFlow(emptyList())
 }
 
 private class FakeSmsDetectionHealthRepository : SmsDetectionHealthRepository {

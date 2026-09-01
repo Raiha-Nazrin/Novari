@@ -70,15 +70,17 @@ interface TransactionDao {
     /**
      * Backs SearchScreen. Every filter is optional -- a null/empty argument is a
      * no-op -- so the single query serves whichever "Search by" scope is active:
-     * [merchantQuery] matches merchant or notes, [categoryIds] narrows by category
-     * (pass an empty set for no category filter), [minAmountMinor]/[maxAmountMinor]
-     * bound the amount (minor units), and [startInclusive]/[endInclusive] bound the
-     * date range (epoch millis, both-or-neither).
+     * [merchantQuery] matches merchant or notes, [merchantKeys] narrows by exact
+     * normalized merchant (pass an empty set for no merchant filter), [categoryIds]
+     * narrows by category (pass an empty set for no category filter),
+     * [minAmountMinor]/[maxAmountMinor] bound the amount (minor units), and
+     * [startInclusive]/[endInclusive] bound the date range (epoch millis, both-or-neither).
      */
     @Query("""
         SELECT * FROM transactions
         WHERE deletedAt IS NULL
         AND (:merchantQuery IS NULL OR merchant LIKE '%' || :merchantQuery || '%' OR notes LIKE '%' || :merchantQuery || '%')
+        AND (:hasMerchantFilter = 0 OR UPPER(TRIM(merchant)) IN (:merchantKeys))
         AND (:hasCategoryFilter = 0 OR categoryId IN (:categoryIds))
         AND (:minAmountMinor IS NULL OR amountMinor >= :minAmountMinor)
         AND (:maxAmountMinor IS NULL OR amountMinor <= :maxAmountMinor)
@@ -87,6 +89,8 @@ interface TransactionDao {
     """)
     fun observeSearch(
         merchantQuery: String?,
+        hasMerchantFilter: Boolean,
+        merchantKeys: List<String>,
         hasCategoryFilter: Boolean,
         categoryIds: List<String>,
         minAmountMinor: Long?,
@@ -94,6 +98,23 @@ interface TransactionDao {
         startInclusive: Long?,
         endInclusive: Long?
     ): Flow<List<TransactionEntity>>
+
+    /**
+     * Distinct merchants derived from active transactions, grouped by normalized
+     * (uppercase, trimmed) form so "SWIGGY*BANGALORE" and "SWIGGY " collapse to one
+     * entry. Ordered by frequency -- the merchants a user transacts with most are the
+     * ones most useful to filter by. [MerchantSummary.merchant] returns the raw spelling
+     * of whichever row `GROUP BY` happens to keep, which SQLite guarantees is a row from
+     * the group when combined with MAX/COUNT aggregates in the same query.
+     */
+    @Query("""
+        SELECT merchant AS merchant, COUNT(*) AS transactionCount, MAX(transactionDate) AS lastTransactionDate
+        FROM transactions
+        WHERE deletedAt IS NULL AND merchant IS NOT NULL AND TRIM(merchant) <> ''
+        GROUP BY UPPER(TRIM(merchant))
+        ORDER BY transactionCount DESC, lastTransactionDate DESC
+    """)
+    fun observeMerchants(): Flow<List<MerchantSummary>>
 
     @Query("SELECT * FROM transactions WHERE sourceReference = :reference LIMIT 1")
     suspend fun findBySourceReference(reference: String): TransactionEntity?

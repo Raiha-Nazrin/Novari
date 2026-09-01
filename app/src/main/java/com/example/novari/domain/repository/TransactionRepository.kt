@@ -1,5 +1,6 @@
 package com.example.novari.domain.repository
 
+import com.example.novari.core.database.dao.MerchantSummary
 import com.example.novari.core.database.entity.TransactionEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -26,10 +27,14 @@ interface TransactionRepository {
     /** See [com.example.novari.core.database.dao.TransactionDao.observeSearch]. */
     fun observeSearch(
         merchantQuery: String?,
+        merchantKeys: Set<String>,
         categoryIds: Set<String>,
         minAmountMinor: Long?,
         maxAmountMinor: Long?,
         startInclusive: Long?,
         endInclusive: Long?
     ): Flow<List<TransactionEntity>>
+
+    /** See [com.example.novari.core.database.dao.TransactionDao.observeMerchants]. */
+    fun observeMerchants(): Flow<List<MerchantSummary>>
 }
