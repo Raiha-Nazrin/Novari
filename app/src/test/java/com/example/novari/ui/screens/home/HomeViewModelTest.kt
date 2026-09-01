@@ -10,9 +10,12 @@ import com.example.novari.core.model.TransactionSource
 import com.example.novari.core.model.TransactionType
 import com.example.novari.domain.repository.TransactionRepository
 import com.example.novari.permissions.AutoTrackingPromptStore
+import com.example.novari.sms.health.SmsDetectionHealthRepository
+import com.example.novari.sms.permission.SmsPermissionChecker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -33,7 +36,9 @@ private class FakeTransactionRepository(
     override suspend fun create(transaction: TransactionEntity) {}
     override suspend fun update(transaction: TransactionEntity) {}
     override suspend fun delete(transaction: TransactionEntity) {}
+    override suspend fun releaseForReparse(transaction: TransactionEntity) {}
     override suspend fun findById(id: String): TransactionEntity? = null
+    override fun observeById(id: String): Flow<TransactionEntity?> = MutableStateFlow(null)
     override suspend fun findBySourceReference(reference: String): TransactionEntity? = null
     override fun observeActive(): Flow<List<TransactionEntity>> = MutableStateFlow(recent)
     override fun observeRecent(limit: Int): Flow<List<TransactionEntity>> =
@@ -41,14 +46,42 @@ private class FakeTransactionRepository(
     override fun observeBetween(startInclusive: Long, endInclusive: Long): Flow<List<TransactionEntity>> =
         MutableStateFlow(recent.filter { it.transactionDate in startInclusive..endInclusive })
     override fun searchActive(query: String): Flow<List<TransactionEntity>> = MutableStateFlow(recent)
+    override fun observeSearch(
+        merchantQuery: String?,
+        categoryIds: Set<String>,
+        minAmountMinor: Long?,
+        maxAmountMinor: Long?,
+        startInclusive: Long?,
+        endInclusive: Long?
+    ): Flow<List<TransactionEntity>> = MutableStateFlow(emptyList())
+}
+
+private class FakeSmsDetectionHealthRepository : SmsDetectionHealthRepository {
+    override fun observeProcessedCount(): Flow<Int> = flowOf(0)
+    override fun observeIgnoredCount(): Flow<Int> = flowOf(0)
+    override fun observeLastSuccessfulSweepAt(): Flow<Long?> = flowOf(null)
+}
+
+private class FakeSmsPermissionChecker(
+    private val canRead: Boolean = true,
+    private val canReceive: Boolean = true
+) : SmsPermissionChecker {
+    override fun canRead(): Boolean = canRead
+    override fun canReceive(): Boolean = canReceive
 }
 
 private class FakeCategoryDao(
     private val categories: List<CategoryEntity> = emptyList()
 ) : CategoryDao {
     override suspend fun insert(entity: CategoryEntity) {}
+    override suspend fun insertAll(entities: List<CategoryEntity>) {}
     override suspend fun update(entity: CategoryEntity) {}
     override fun observeActive(): Flow<List<CategoryEntity>> = MutableStateFlow(categories)
+    override suspend fun findById(id: String): CategoryEntity? = categories.find { it.id == id }
+    override suspend fun findByName(name: String): CategoryEntity? =
+        categories.find { it.name.equals(name, ignoreCase = true) }
+    override suspend fun reactivate(id: String, now: Long) {}
+    override suspend fun deactivate(id: String, now: Long) {}
 }
 
 /**
@@ -103,7 +136,9 @@ class HomeViewModelTest {
         val viewModel = HomeViewModel(
             transactionRepository = FakeTransactionRepository(emptyList()),
             categoryDao = FakeCategoryDao(),
-            autoTrackingPromptStore = store
+            autoTrackingPromptStore = store,
+            smsDetectionHealthRepository = FakeSmsDetectionHealthRepository(),
+            smsPermissionChecker = FakeSmsPermissionChecker()
         )
 
         assertEquals(AutoTrackingPromptVisibility.Loading, viewModel.uiState.value.autoTrackingPrompt)
@@ -120,7 +155,9 @@ class HomeViewModelTest {
         val viewModel = HomeViewModel(
             transactionRepository = FakeTransactionRepository(transactions),
             categoryDao = FakeCategoryDao(),
-            autoTrackingPromptStore = store
+            autoTrackingPromptStore = store,
+            smsDetectionHealthRepository = FakeSmsDetectionHealthRepository(),
+            smsPermissionChecker = FakeSmsPermissionChecker()
         )
 
         val state = withTimeout(5_000) {
@@ -139,7 +176,9 @@ class HomeViewModelTest {
         val viewModel = HomeViewModel(
             transactionRepository = FakeTransactionRepository(transactions),
             categoryDao = FakeCategoryDao(),
-            autoTrackingPromptStore = store
+            autoTrackingPromptStore = store,
+            smsDetectionHealthRepository = FakeSmsDetectionHealthRepository(),
+            smsPermissionChecker = FakeSmsPermissionChecker()
         )
 
         val state = withTimeout(5_000) {

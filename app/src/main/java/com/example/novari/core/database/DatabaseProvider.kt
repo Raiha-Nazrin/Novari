@@ -3,6 +3,7 @@ package com.example.novari.core.database
 import android.content.Context
 import androidx.room.Room
 import com.example.novari.BuildConfig
+import com.example.novari.core.database.migration.NovariMigrations
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 /**
@@ -27,7 +28,14 @@ object DatabaseProvider {
                 DATABASE_NAME
             )
                 // Add only real, tested migrations here.
-                // .addMigrations(NovariMigrations.MIGRATION_1_2)
+                .addMigrations(
+                    NovariMigrations.MIGRATION_1_2,
+                    NovariMigrations.MIGRATION_2_3,
+                    NovariMigrations.MIGRATION_3_4,
+                    NovariMigrations.MIGRATION_4_5,
+                    NovariMigrations.MIGRATION_5_6,
+                    NovariMigrations.MIGRATION_6_7
+                )
                 .build()
         }
 
@@ -49,7 +57,14 @@ object DatabaseProvider {
             )
                 .openHelperFactory(factory)
                 // Add only real, tested migrations here.
-                // .addMigrations(NovariMigrations.MIGRATION_1_2)
+                .addMigrations(
+                    NovariMigrations.MIGRATION_1_2,
+                    NovariMigrations.MIGRATION_2_3,
+                    NovariMigrations.MIGRATION_3_4,
+                    NovariMigrations.MIGRATION_4_5,
+                    NovariMigrations.MIGRATION_5_6,
+                    NovariMigrations.MIGRATION_6_7
+                )
                 .build()
         } finally {
             databasePassword.fill(0)

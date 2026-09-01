@@ -3,6 +3,7 @@ package com.example.novari.sms.processor
 import com.example.novari.core.database.entity.SmsProcessingEntity
 import com.example.novari.core.database.entity.SmsProcessingStatus
 import com.example.novari.core.database.entity.TransactionEntity
+import com.example.novari.domain.repository.MerchantCategoryRuleRepository
 import com.example.novari.domain.repository.TransactionRepository
 import com.example.novari.sms.classifier.FinancialSmsClassifier
 import com.example.novari.sms.model.RawSmsMessage
@@ -10,10 +11,13 @@ import com.example.novari.sms.parser.FinancialSmsParser
 import com.example.novari.sms.repository.SmsProcessingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 private class FakeTransactionRepository : TransactionRepository {
     val created = mutableListOf<TransactionEntity>()
@@ -26,7 +30,9 @@ private class FakeTransactionRepository : TransactionRepository {
 
     override suspend fun update(transaction: TransactionEntity) {}
     override suspend fun delete(transaction: TransactionEntity) {}
+    override suspend fun releaseForReparse(transaction: TransactionEntity) {}
     override suspend fun findById(id: String): TransactionEntity? = created.find { it.id == id }
+    override fun observeById(id: String): Flow<TransactionEntity?> = MutableStateFlow(created.find { it.id == id })
     override suspend fun findBySourceReference(reference: String): TransactionEntity? =
         bySourceReference[reference]
 
@@ -35,14 +41,22 @@ private class FakeTransactionRepository : TransactionRepository {
     override fun observeBetween(startInclusive: Long, endInclusive: Long): Flow<List<TransactionEntity>> =
         MutableStateFlow(created.filter { it.transactionDate in startInclusive..endInclusive })
     override fun searchActive(query: String): Flow<List<TransactionEntity>> = MutableStateFlow(created)
+    override fun observeSearch(
+        merchantQuery: String?,
+        categoryIds: Set<String>,
+        minAmountMinor: Long?,
+        maxAmountMinor: Long?,
+        startInclusive: Long?,
+        endInclusive: Long?
+    ): Flow<List<TransactionEntity>> = MutableStateFlow(emptyList())
 }
 
 private class FakeSmsProcessingRepository : SmsProcessingRepository {
     val saved = mutableListOf<SmsProcessingEntity>()
     private val byFingerprint = mutableMapOf<String, SmsProcessingEntity>()
 
-    override suspend fun findByFingerprint(fingerprint: String): SmsProcessingEntity? =
-        byFingerprint[fingerprint]
+    override suspend fun findByFingerprint(fingerprints: List<String>): SmsProcessingEntity? =
+        fingerprints.firstNotNullOfOrNull { byFingerprint[it] }
 
     override suspend fun save(record: SmsProcessingEntity): Boolean {
         if (byFingerprint.containsKey(record.fingerprint)) return false
@@ -55,18 +69,47 @@ private class FakeSmsProcessingRepository : SmsProcessingRepository {
         saved.removeAll { it.status == status }
         byFingerprint.values.removeAll { it.status == status }
     }
+
+    override suspend fun deleteById(id: String) {
+        saved.removeAll { it.id == id }
+        byFingerprint.values.removeAll { it.id == id }
+    }
+
+    override suspend fun findStaleProcessed(currentRevision: Int): List<SmsProcessingEntity> =
+        saved.filter { it.status == SmsProcessingStatus.PROCESSED && it.derivedRevision < currentRevision }
+
+    override fun observeProcessedCount(): Flow<Int> =
+        flow { emit(saved.count { it.status == SmsProcessingStatus.PROCESSED }) }
+
+    override fun observeSilentlyIgnoredCount(): Flow<Int> =
+        flow { emit(saved.count { it.status == SmsProcessingStatus.IGNORED }) }
+}
+
+private class FakeMerchantCategoryRuleRepository(
+    private val rules: Map<String, String> = emptyMap()
+) : MerchantCategoryRuleRepository {
+    val learned = mutableListOf<Pair<String, String>>()
+
+    override suspend fun categoryForMerchant(merchant: String): String? =
+        rules.entries.firstOrNull { merchant.uppercase().contains(it.key) }?.value
+
+    override suspend fun learnFromCorrection(merchant: String, categoryId: String) {
+        learned += merchant to categoryId
+    }
 }
 
 class SmsTransactionProcessorTest {
 
     private fun newProcessor(
         transactionRepository: FakeTransactionRepository = FakeTransactionRepository(),
-        smsProcessingRepository: FakeSmsProcessingRepository = FakeSmsProcessingRepository()
+        smsProcessingRepository: FakeSmsProcessingRepository = FakeSmsProcessingRepository(),
+        merchantCategoryRuleRepository: FakeMerchantCategoryRuleRepository = FakeMerchantCategoryRuleRepository()
     ) = SmsTransactionProcessor(
         classifier = FinancialSmsClassifier(),
         parser = FinancialSmsParser(),
         transactionRepository = transactionRepository,
-        smsProcessingRepository = smsProcessingRepository
+        smsProcessingRepository = smsProcessingRepository,
+        merchantCategoryRuleRepository = merchantCategoryRuleRepository
     )
 
     @Test
@@ -86,6 +129,7 @@ class SmsTransactionProcessorTest {
         assertEquals(1, transactionRepository.created.size)
         assertEquals(1, smsProcessingRepository.saved.size)
         assertEquals(SmsProcessingStatus.PROCESSED, smsProcessingRepository.saved.single().status)
+        assertEquals(SmsReparseGate.PARSER_VERSION, smsProcessingRepository.saved.single().derivedRevision)
     }
 
     @Test
@@ -195,5 +239,77 @@ class SmsTransactionProcessorTest {
 
         assertEquals(1, transactionRepository.created.size)
         assertTrue(transactionRepository.created.single().sourceReference.orEmpty().startsWith("sms:"))
+    }
+
+    @Test
+    fun `same message just across a local midnight boundary dedupes across the day bucket`() = runTest {
+        val transactionRepository = FakeTransactionRepository()
+        val smsProcessingRepository = FakeSmsProcessingRepository()
+        val processor = newProcessor(transactionRepository, smsProcessingRepository)
+        val body = "Rs 450.00 debited from A/c XX1234 to SWIGGY"
+        val beforeMidnight = ZonedDateTime.of(2026, 8, 18, 23, 59, 0, 0, ZoneId.systemDefault())
+            .toInstant().toEpochMilli()
+        val afterMidnight = ZonedDateTime.of(2026, 8, 19, 0, 1, 0, 0, ZoneId.systemDefault())
+            .toInstant().toEpochMilli()
+
+        // Real-time path fingerprints the message just before midnight; catch-up re-derives the
+        // same message a moment later, now bucketed into the next day.
+        processor.process(RawSmsMessage(sender = "HDFCBK", body = body, timestamp = beforeMidnight))
+        processor.process(RawSmsMessage(sender = "HDFCBK", body = body, timestamp = afterMidnight))
+
+        assertEquals(1, transactionRepository.created.size)
+    }
+
+    @Test
+    fun `weak reference capture falls back to the fingerprint dedup key`() = runTest {
+        val transactionRepository = FakeTransactionRepository()
+        val smsProcessingRepository = FakeSmsProcessingRepository()
+        val processor = newProcessor(transactionRepository, smsProcessingRepository)
+
+        processor.process(
+            RawSmsMessage(
+                sender = "HDFCBK",
+                body = "Rs 450.00 debited from A/c XX1234 to SWIGGY. Ref No: AB12",
+                timestamp = System.currentTimeMillis()
+            )
+        )
+
+        val sourceReference = transactionRepository.created.single().sourceReference.orEmpty()
+        assertTrue("weak reference capture must not be trusted as the dedup key: $sourceReference", sourceReference.startsWith("sms:"))
+    }
+
+    @Test
+    fun `matching merchant rule sets the category instead of leaving it null`() = runTest {
+        val transactionRepository = FakeTransactionRepository()
+        val smsProcessingRepository = FakeSmsProcessingRepository()
+        val merchantCategoryRuleRepository = FakeMerchantCategoryRuleRepository(mapOf("SWIGGY" to "cat_food"))
+        val processor = newProcessor(transactionRepository, smsProcessingRepository, merchantCategoryRuleRepository)
+
+        processor.process(
+            RawSmsMessage(
+                sender = "HDFCBK",
+                body = "Rs 450.00 debited from A/c XX1234 to SWIGGY. UPI Ref No 123456789012.",
+                timestamp = System.currentTimeMillis()
+            )
+        )
+
+        assertEquals("cat_food", transactionRepository.created.single().categoryId)
+    }
+
+    @Test
+    fun `no matching merchant rule leaves the category null`() = runTest {
+        val transactionRepository = FakeTransactionRepository()
+        val smsProcessingRepository = FakeSmsProcessingRepository()
+        val processor = newProcessor(transactionRepository, smsProcessingRepository)
+
+        processor.process(
+            RawSmsMessage(
+                sender = "HDFCBK",
+                body = "Rs 450.00 debited from A/c XX1234 to SWIGGY. UPI Ref No 123456789012.",
+                timestamp = System.currentTimeMillis()
+            )
+        )
+
+        assertEquals(null, transactionRepository.created.single().categoryId)
     }
 }

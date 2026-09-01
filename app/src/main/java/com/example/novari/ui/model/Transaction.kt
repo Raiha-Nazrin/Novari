@@ -19,5 +19,6 @@ data class Transaction(
     val date: String,
     val amount: Int,
     @DrawableRes val iconRes: Int,
-    val type: TransactionType = TransactionType.EXPENSE
+    val type: TransactionType = TransactionType.EXPENSE,
+    val isAutoDetected: Boolean = false
 )

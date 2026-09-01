@@ -5,6 +5,7 @@ import com.example.novari.core.database.entity.SmsProcessingStatus
 import com.example.novari.core.database.entity.TransactionEntity
 import com.example.novari.core.model.TransactionSource
 import com.example.novari.core.util.TransactionId
+import com.example.novari.domain.repository.MerchantCategoryRuleRepository
 import com.example.novari.domain.repository.TransactionRepository
 import com.example.novari.sms.classifier.FinancialSmsClassifier
 import com.example.novari.sms.model.RawSmsMessage
@@ -16,17 +17,21 @@ class SmsTransactionProcessor(
     private val classifier: FinancialSmsClassifier,
     private val parser: FinancialSmsParser,
     private val transactionRepository: TransactionRepository,
-    private val smsProcessingRepository: SmsProcessingRepository
+    private val smsProcessingRepository: SmsProcessingRepository,
+    private val merchantCategoryRuleRepository: MerchantCategoryRuleRepository
 ) {
     suspend fun process(message: RawSmsMessage) {
         val fingerprint = SmsFingerprint.create(message.sender, message.body, message.timestamp)
 
         // Cheap optimization: skip re-parsing a message the catch-up sweep has already seen.
         // Not the correctness guard -- the insert-ignore below is, since goAsync and the sweep
-        // can race on the same message.
-        if (smsProcessingRepository.findByFingerprint(fingerprint) != null) return
+        // can race on the same message. Checks the adjacent days too: the real-time path uses
+        // the SMSC timestamp and catch-up uses the provider's DATE column, which can fall on
+        // different sides of a local-day boundary for the same message.
+        val dedupCandidates = SmsFingerprint.dedupCandidates(message.sender, message.body, message.timestamp)
+        if (smsProcessingRepository.findByFingerprint(dedupCandidates) != null) return
 
-        if (!classifier.isFinancial(message.sender, message.body)) {
+        if (!classifier.isFinancial(message.body)) {
             saveProcessing(message, fingerprint, SmsProcessingStatus.IGNORED, null)
             return
         }
@@ -37,7 +42,9 @@ class SmsTransactionProcessor(
             return
         }
 
-        val sourceReference = parsed.referenceNumber ?: "sms:$fingerprint"
+        // A weak capture (e.g. "no" out of "Ref no.") would otherwise collide two unrelated
+        // transactions on the dedup key and silently drop the second.
+        val sourceReference = parsed.referenceNumber?.takeIf { isStrongReference(it) } ?: "sms:$fingerprint"
         if (transactionRepository.findBySourceReference(sourceReference) != null) return
 
         val now = System.currentTimeMillis()
@@ -49,13 +56,15 @@ class SmsTransactionProcessor(
         val claimed = saveProcessing(message, fingerprint, SmsProcessingStatus.PROCESSED, transactionId)
         if (!claimed) return
 
+        val categoryId = parsed.merchant?.let { merchantCategoryRuleRepository.categoryForMerchant(it) }
+
         transactionRepository.create(
             TransactionEntity(
                 id = transactionId,
                 amountMinor = parsed.amountMinor,
                 currencyCode = parsed.currencyCode,
                 merchant = parsed.merchant,
-                categoryId = null,
+                categoryId = categoryId,
                 transactionType = parsed.transactionType,
                 transactionDate = parsed.transactionDate,
                 notes = null,
@@ -68,6 +77,9 @@ class SmsTransactionProcessor(
             )
         )
     }
+
+    private fun isStrongReference(reference: String): Boolean =
+        reference.length >= 6 && reference.count { it.isDigit() } >= 4
 
     private suspend fun saveProcessing(
         message: RawSmsMessage,
@@ -85,7 +97,8 @@ class SmsTransactionProcessor(
                 status = status,
                 transactionId = transactionId,
                 processedAt = now,
-                createdAt = now
+                createdAt = now,
+                derivedRevision = SmsReparseGate.PARSER_VERSION
             )
         )
     }

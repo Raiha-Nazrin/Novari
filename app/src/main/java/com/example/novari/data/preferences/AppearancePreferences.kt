@@ -9,4 +9,5 @@ interface AppearancePreferences {
     val settings: Flow<AppearanceSettings>
     suspend fun setThemeMode(mode: ThemeMode)
     suspend fun setAccent(accent: AccentColor)
+    suspend fun setSettings(settings: AppearanceSettings)
 }

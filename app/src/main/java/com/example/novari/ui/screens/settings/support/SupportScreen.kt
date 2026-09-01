@@ -46,8 +46,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.novari.R
+import com.example.novari.ui.components.ScreenHeader
 import com.example.novari.ui.theme.NovariColors
-import com.example.novari.ui.theme.NovariTypography
+import com.example.novari.ui.theme.NovariShape
 import androidx.core.net.toUri
 
 @Composable
@@ -70,10 +71,10 @@ fun SupportScreen(
             .navigationBarsPadding()
             .imePadding(),
         contentPadding = androidx.compose.foundation.layout.PaddingValues(
-            start = 20.dp,
-            end = 20.dp,
-            top = 8.dp,
-            bottom = 28.dp
+            start = 24.dp,
+            end = 24.dp,
+            top = 28.dp,
+            bottom = 32.dp
         )
     ) {
         item {
@@ -98,17 +99,9 @@ fun SupportScreen(
 
             Spacer(Modifier.height(18.dp))
 
-            Text(
-                text = "Support",
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Spacer(Modifier.height(8.dp))
-
-            Text(
-                text = "We’re here to help you.",
-                style = NovariTypography.bodyLarge,
-                color = NovariColors.Slate
+            ScreenHeader(
+                title = "Support",
+                subtitle = "We’re here to help you."
             )
 
             Spacer(Modifier.height(34.dp))
@@ -137,7 +130,7 @@ fun SupportScreen(
 
                 Text(
                     text = "Send us a message and we’ll get\nback to you as soon as possible.",
-                    style = NovariTypography.bodyLarge,
+                    style = MaterialTheme.typography.bodyLarge,
                     color = NovariColors.Slate,
                     modifier = Modifier.weight(1f)
                 )
@@ -147,7 +140,7 @@ fun SupportScreen(
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
+                shape = NovariShape.card,
                 color = NovariColors.Surface,
                 border = BorderStroke(1.dp, NovariColors.Border),
                 shadowElevation = 2.dp
@@ -160,8 +153,7 @@ fun SupportScreen(
                 ) {
                     Text(
                         text = "Name",
-                        style = NovariTypography.titleLarge,
-                        fontSize = 15.sp
+                        style = MaterialTheme.typography.titleSmall
                     )
 
                     Spacer(Modifier.height(12.dp))
@@ -174,7 +166,7 @@ fun SupportScreen(
                         placeholder = {
                             Text(
                                 "Enter your name",
-                                style = NovariTypography.bodyLarge,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = NovariColors.Slate
                             )
                         },
@@ -196,8 +188,7 @@ fun SupportScreen(
 
                     Text(
                         text = "Message",
-                        style = NovariTypography.titleLarge,
-                        fontSize = 15.sp
+                        style = MaterialTheme.typography.titleSmall
                     )
 
                     Spacer(Modifier.height(12.dp))
@@ -211,7 +202,7 @@ fun SupportScreen(
                         placeholder = {
                             Text(
                                 "Write your message here...",
-                                style = NovariTypography.bodyLarge,
+                                style = MaterialTheme.typography.bodyLarge,
                                 color = NovariColors.Slate
                             )
                         },
@@ -229,8 +220,7 @@ fun SupportScreen(
 
                     Text(
                         text = "To (Email ID)",
-                        style = NovariTypography.titleLarge,
-                        fontSize = 15.sp
+                        style = MaterialTheme.typography.titleSmall
                     )
 
                     Spacer(Modifier.height(12.dp))
@@ -253,7 +243,7 @@ fun SupportScreen(
 
                         Text(
                             text = supportEmail,
-                            style = NovariTypography.bodyLarge,
+                            style = MaterialTheme.typography.bodyLarge,
                             color = NovariColors.Navy
                         )
                     }
@@ -276,7 +266,7 @@ fun SupportScreen(
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = NovariColors.Teal,
-                            contentColor = Color.White,
+                            contentColor = NovariColors.Surface,
                             disabledContainerColor = NovariColors.Mint,
                             disabledContentColor = NovariColors.Muted
                         )
@@ -292,9 +282,8 @@ fun SupportScreen(
 
                         Text(
                             text = "Send Message",
-                            style = NovariTypography.titleLarge,
-                            color = Color.White,
-                            fontSize = 16.sp
+                            style = MaterialTheme.typography.labelLarge,
+                            color = NovariColors.Surface
                         )
                     }
                 }
@@ -317,9 +306,8 @@ fun SupportScreen(
 
                 Text(
                     text = "Your message will be sent using your default email app.\nNovari does not store or transmit your message.",
-                    style = NovariTypography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = NovariColors.Slate,
-                    fontSize = 12.sp,
                     modifier = Modifier.weight(1f)
                 )
             }

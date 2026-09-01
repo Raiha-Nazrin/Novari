@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -36,6 +35,7 @@ fun WeeklyChart(
 
     val textMeasurer = rememberTextMeasurer()
     val chartLineColor = NovariColors.ChartLine
+    val dotCoreColor = NovariColors.Surface
 
     Column(modifier = modifier.fillMaxWidth()) {
         Canvas(
@@ -70,7 +70,7 @@ fun WeeklyChart(
 
             points.forEach {
                 drawCircle(color = chartLineColor, radius = DotRadius.toPx(), center = it)
-                drawCircle(color = Color.White, radius = DotInnerRadius.toPx(), center = it)
+                drawCircle(color = dotCoreColor, radius = DotInnerRadius.toPx(), center = it)
             }
         }
 

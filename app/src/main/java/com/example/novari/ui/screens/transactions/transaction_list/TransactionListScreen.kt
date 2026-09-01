@@ -25,6 +25,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -42,14 +43,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.novari.R
+import com.example.novari.ui.components.CalendarBottomSheet
 import com.example.novari.ui.components.CategoryBottomSheetContent
 import com.example.novari.ui.components.ScreenHeader
 import com.example.novari.ui.components.SearchFieldComponent
@@ -57,21 +56,24 @@ import com.example.novari.ui.components.TransactionRowItem
 import com.example.novari.ui.components.formatTransactionAmount
 import com.example.novari.ui.model.Transaction
 import com.example.novari.ui.theme.NovariColors
-import com.example.novari.ui.theme.NovariTypography
+import com.example.novari.ui.theme.NovariShape
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionListScreen(
     onBackClick: () -> Unit,
+    onTransactionClick: (String) -> Unit = {},
     viewModel: TransactionListViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    var selectedFilter by rememberSaveable {
-        mutableStateOf("All")
-    }
+    val selectedFilter = if (uiState.quickFilter == QuickFilter.THIS_MONTH) "This month" else "All"
 
     var showCategorySheet by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    var showCalendar by rememberSaveable {
         mutableStateOf(false)
     }
 
@@ -79,8 +81,8 @@ fun TransactionListScreen(
         skipPartiallyExpanded = true
     )
 
-    var selectedCategories by rememberSaveable {
-        mutableStateOf(emptySet<String>())
+    var pendingCategorySelection by rememberSaveable {
+        mutableStateOf(uiState.selectedCategories)
     }
 
     var collapsedDayGroups by rememberSaveable {
@@ -123,22 +125,24 @@ fun TransactionListScreen(
                 NovariFilterRow(
                     selectedFilter = selectedFilter,
                     onFilterSelected = { filter ->
-                        selectedFilter = filter
                         viewModel.onQuickFilterSelected(
                             if (filter == "This month") QuickFilter.THIS_MONTH else QuickFilter.ALL
                         )
                     },
                     onCategoryClick = {
+                        pendingCategorySelection = uiState.selectedCategories
                         showCategorySheet = true
                     },
                     onDateClick = {
-                        // Date picker not built yet — no-op for now.
-                    }
+                        showCalendar = true
+                    },
+                    dateFilterLabel = uiState.dateFilterLabel,
+                    dateFilterActive = uiState.dateFilter != DateFilter.None
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
                 MonthSummaryRow(
-                    monthLabel = uiState.monthLabel,
+                    monthLabel = uiState.rangeLabel,
                     transactionCount = uiState.transactionCount
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -153,7 +157,7 @@ fun TransactionListScreen(
             ) {
             if (uiState.isEmpty) {
                 item {
-                    EmptyTransactionsMessage(hasActiveFilters = uiState.query.isNotBlank())
+                    EmptyTransactionsMessage(hasActiveFilters = uiState.hasActiveFilters)
                 }
             }
 
@@ -185,8 +189,7 @@ fun TransactionListScreen(
                             transactions = dayGroup.transactions,
                             selectedTransactionId = selectedTransactionId,
                             onTransactionClick = { transaction ->
-                                selectedTransactionId =
-                                    if (selectedTransactionId == transaction.id) null else transaction.id
+                                onTransactionClick(transaction.id)
                             },
                             onEditTransaction = { /* wire to future edit flow */ },
                             onDeleteTransaction = { /* wire to future delete flow */ }
@@ -216,25 +219,51 @@ fun TransactionListScreen(
             }
         ) {
             CategoryBottomSheetContent(
-                selectedCategories = selectedCategories,
+                categories = uiState.categories,
+                selectedCategoryIds = pendingCategorySelection,
 
                 onSelectionChanged = {
-                    selectedCategories = it
+                    pendingCategorySelection = it
+                },
+
+                onAddCategory = { name ->
+                    viewModel.addCategory(name)
                 },
 
                 onApply = {
                     showCategorySheet = false
-
-                    // Category ids aren't resolved from names yet — pass
-                    // empty until the category picker exposes real ids.
-                    viewModel.setCategoryFilter(emptySet())
+                    viewModel.setCategoryFilter(pendingCategorySelection)
                 },
 
                 onDismiss = {
                     showCategorySheet = false
-                }
+                    viewModel.clearAddCategoryError()
+                },
+
+                addCategoryError = uiState.addCategoryError
             )
         }
+    }
+
+    if (showCalendar) {
+
+        CalendarBottomSheet(
+            initialFilter = uiState.dateFilter,
+
+            onApply = { filter ->
+                viewModel.setDateFilter(filter)
+                showCalendar = false
+            },
+
+            onClear = {
+                viewModel.clearDateFilter()
+                showCalendar = false
+            },
+
+            onDismiss = {
+                showCalendar = false
+            }
+        )
     }
 }
 
@@ -252,7 +281,7 @@ private fun MonthSummaryRow(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = monthLabel,
-                style = NovariTypography.titleMedium,
+                style = MaterialTheme.typography.titleMedium,
                 color = NovariColors.DarkTeal
             )
             Icon(
@@ -265,7 +294,7 @@ private fun MonthSummaryRow(
 
         Text(
             text = stringResource(R.string.transactions_count, transactionCount),
-            style = NovariTypography.bodyMedium,
+            style = MaterialTheme.typography.bodyMedium,
             color = NovariColors.Slate
         )
     }
@@ -284,7 +313,7 @@ private fun EmptyTransactionsMessage(
                 R.string.no_transactions_this_month
             }
         ),
-        style = NovariTypography.bodyMedium,
+        style = MaterialTheme.typography.bodyMedium,
         color = NovariColors.Slate,
         modifier = modifier
             .fillMaxWidth()
@@ -310,14 +339,14 @@ private fun DayGroupHeader(
     ) {
         Text(
             text = label,
-            style = NovariTypography.titleSmall,
+            style = MaterialTheme.typography.titleSmall,
             color = NovariColors.Navy
         )
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = "₹${formatTransactionAmount(total)}",
-                style = NovariTypography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                text = "₹${formatTransactionAmount(total.toLong())}",
+                style = MaterialTheme.typography.labelMedium,
                 color = NovariColors.Navy
             )
             Spacer(modifier = Modifier.width(4.dp))
@@ -354,8 +383,6 @@ private fun DayGroupCard(
                 transaction = transaction,
                 isSelected = transaction.id == selectedTransactionId,
                 onClick = { onTransactionClick(transaction) },
-                onEdit = { onEditTransaction(transaction) },
-                onDelete = { onDeleteTransaction(transaction) }
             )
             if (index != transactions.lastIndex) {
                 HorizontalDivider(color = NovariColors.Border)
@@ -370,7 +397,9 @@ fun NovariFilterRow(
     selectedFilter: String,
     onFilterSelected: (String) -> Unit,
     onCategoryClick: () -> Unit,
-    onDateClick: () -> Unit
+    onDateClick: () -> Unit,
+    dateFilterLabel: String? = null,
+    dateFilterActive: Boolean = false
 ) {
     Row(
         modifier = modifier
@@ -404,7 +433,8 @@ fun NovariFilterRow(
         )
 
         NovariFilterChip(
-            text = "Date",
+            text = dateFilterLabel ?: "Date",
+            selected = dateFilterActive,
             showArrow = true,
             onClick = onDateClick
         )
@@ -426,7 +456,7 @@ fun NovariFilterChip(
     }
 
     val contentColor = if (selected) {
-        Color.White
+        NovariColors.Surface
     } else {
         NovariColors.Navy
     }
@@ -434,9 +464,9 @@ fun NovariFilterChip(
     Surface(
         modifier = modifier
             .height(35.dp)
-            .clip(RoundedCornerShape(15.dp))
+            .clip(NovariShape.pill)
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(24.dp),
+        shape = NovariShape.pill,
         color = backgroundColor,
         border = if (!selected) {
             BorderStroke(
@@ -456,10 +486,7 @@ fun NovariFilterChip(
         ) {
             Text(
                 text = text,
-                style = NovariTypography.bodyMedium.copy(
-                    fontWeight = FontWeight.Medium
-                ),
-                fontSize = 14.sp,
+                style = MaterialTheme.typography.labelMedium,
                 color = contentColor,
                 maxLines = 1
             )

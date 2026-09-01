@@ -1,4 +1,4 @@
-package com.example.novari.ui.screens.transactions
+package com.example.novari.ui.screens.transactions.add_transactions
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -34,8 +35,10 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.novari.ui.theme.NovariColors
 @Composable
 fun AddTransactionScreen(
     viewModel: AddExpenseViewModel = hiltViewModel(),
@@ -70,10 +73,11 @@ private fun AddTransactionContent(
     val focusManager = LocalFocusManager.current
 
     Scaffold(
+        containerColor = NovariColors.Background,
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Add Expense")
+                    Text(text = "Add Expense", style = MaterialTheme.typography.titleMedium)
                 },
                 navigationIcon = {
                     IconButton(
@@ -82,14 +86,21 @@ private fun AddTransactionContent(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = "Back",
+                            tint = NovariColors.Navy
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = NovariColors.Background,
+                    titleContentColor = NovariColors.Navy,
+                    navigationIconContentColor = NovariColors.Navy
+                )
             )
         },
         bottomBar = {
             Surface(
+                color = NovariColors.Surface,
                 tonalElevation = 3.dp
             ) {
                 Button(
@@ -103,7 +114,7 @@ private fun AddTransactionContent(
                         .padding(16.dp)
                         .navigationBarsPadding()
                         .height(52.dp),
-                    shape = MaterialTheme.shapes.medium
+                    shape = RoundedCornerShape(14.dp)
                 ) {
                     if (uiState.isSaving) {
                         CircularProgressIndicator(
@@ -124,7 +135,7 @@ private fun AddTransactionContent(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .imePadding()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(horizontal = 24.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
@@ -136,7 +147,7 @@ private fun AddTransactionContent(
             Text(
                 text = "Add the details of your expense.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = NovariColors.Slate
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -190,7 +201,7 @@ private fun AddTransactionContent(
                 Text(
                     text = uiState.errorMessage,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.error
+                    color = NovariColors.Error
                 )
             }
 

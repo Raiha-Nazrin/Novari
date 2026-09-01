@@ -9,7 +9,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import com.example.novari.ui.motion.LocalReducedMotion
 import com.example.novari.ui.motion.rememberReducedMotion
 
-private fun NovariColorScheme.toMaterialScheme(isDark: Boolean): ColorScheme {
+internal fun NovariColorScheme.toMaterialScheme(isDark: Boolean): ColorScheme {
     val base = if (isDark) darkColorScheme() else lightColorScheme()
     return base.copy(
         primary = teal,
@@ -27,10 +27,28 @@ private fun NovariColorScheme.toMaterialScheme(isDark: Boolean): ColorScheme {
         surfaceVariant = paleTeal,
         onSurfaceVariant = slate,
 
+        surfaceContainer = surfaceHigh,
+        surfaceContainerLow = surfaceHigh,
+        surfaceContainerHigh = surfaceHigh,
+        surfaceContainerHighest = surfaceHigh,
+
         outline = border,
+        outlineVariant = divider,
+
+        secondary = teal,
+        onSecondary = surface,
+        secondaryContainer = paleTeal,
+        onSecondaryContainer = darkTeal,
+
+        tertiary = teal,
+        onTertiary = surface,
+        tertiaryContainer = paleTeal,
+        onTertiaryContainer = darkTeal,
 
         error = error,
-        onError = surface
+        onError = surface,
+        errorContainer = errorBackground,
+        onErrorContainer = errorDark
     )
 }
 

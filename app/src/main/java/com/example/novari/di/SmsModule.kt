@@ -4,10 +4,13 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.novari.domain.repository.MerchantCategoryRuleRepository
 import com.example.novari.domain.repository.TransactionRepository
 import com.example.novari.sms.classifier.FinancialSmsClassifier
 import com.example.novari.sms.history.HistoricalSmsReader
 import com.example.novari.sms.parser.FinancialSmsParser
+import com.example.novari.sms.permission.AndroidSmsPermissionChecker
+import com.example.novari.sms.permission.SmsPermissionChecker
 import com.example.novari.sms.processor.SmsTransactionProcessor
 import com.example.novari.sms.repository.SmsProcessingRepository
 import dagger.Module
@@ -44,15 +47,22 @@ object SmsModule {
 
     @Provides
     @Singleton
+    fun provideSmsPermissionChecker(@ApplicationContext context: Context): SmsPermissionChecker =
+        AndroidSmsPermissionChecker(context)
+
+    @Provides
+    @Singleton
     fun provideSmsTransactionProcessor(
         classifier: FinancialSmsClassifier,
         parser: FinancialSmsParser,
         transactionRepository: TransactionRepository,
-        smsProcessingRepository: SmsProcessingRepository
+        smsProcessingRepository: SmsProcessingRepository,
+        merchantCategoryRuleRepository: MerchantCategoryRuleRepository
     ): SmsTransactionProcessor = SmsTransactionProcessor(
         classifier = classifier,
         parser = parser,
         transactionRepository = transactionRepository,
-        smsProcessingRepository = smsProcessingRepository
+        smsProcessingRepository = smsProcessingRepository,
+        merchantCategoryRuleRepository = merchantCategoryRuleRepository
     )
 }

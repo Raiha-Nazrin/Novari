@@ -1,23 +1,26 @@
 package com.example.novari.ui.components
 
-import android.widget.Space
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -25,8 +28,14 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,24 +43,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.novari.R
+import com.example.novari.ui.model.CategoryUiModel
 import com.example.novari.ui.theme.NovariColors
-import com.example.novari.ui.theme.NovariTypography
 
 @Composable
 fun CategoryBottomSheetContent(
-    selectedCategories: Set<String>,
+    categories: List<CategoryUiModel>,
+    selectedCategoryIds: Set<String>,
     onSelectionChanged: (Set<String>) -> Unit,
+    onAddCategory: (String) -> Unit,
     onApply: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    addCategoryError: String? = null
 ) {
-    val categories = listOf(
-        "Food",
-        "Shopping",
-        "Transport",
-        "Others"
-    )
-
-    val isAllSelected = selectedCategories.isEmpty()
+    val isAllSelected = selectedCategoryIds.isEmpty()
+    var isAddingCategory by remember { mutableStateOf(false) }
+    var newCategoryName by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -69,7 +76,7 @@ fun CategoryBottomSheetContent(
         ) {
             Text(
                 text = "Select Category",
-                style = NovariTypography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall
             )
 
             Spacer(
@@ -91,32 +98,113 @@ fun CategoryBottomSheetContent(
             modifier = Modifier.height(20.dp)
         )
 
-        // All categories
-        CategoryItem(
-            title = "All",
-            selected = isAllSelected,
-            onClick = {
-                onSelectionChanged(emptySet())
+        LazyColumn(
+            modifier = Modifier.heightIn(max = 360.dp)
+        ) {
+            item {
+                CategoryItem(
+                    title = "All",
+                    iconRes = R.drawable.ic_category,
+                    selected = isAllSelected,
+                    onClick = {
+                        onSelectionChanged(emptySet())
+                    }
+                )
             }
-        )
 
-        categories.forEach { category ->
+            items(categories, key = { it.id }) { category ->
+                CategoryItem(
+                    title = category.name,
+                    iconRes = category.iconRes,
+                    selected = category.id in selectedCategoryIds,
+                    onClick = {
+                        val updatedSelection =
+                            if (category.id in selectedCategoryIds) {
+                                selectedCategoryIds - category.id
+                            } else {
+                                selectedCategoryIds + category.id
+                            }
 
-            CategoryItem(
-                title = category,
-                selected = category in selectedCategories,
-                onClick = {
+                        onSelectionChanged(updatedSelection)
+                    }
+                )
+            }
 
-                    val updatedSelection =
-                        if (category in selectedCategories) {
-                            selectedCategories - category
-                        } else {
-                            selectedCategories + category
+            item {
+                if (isAddingCategory) {
+                    Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                        OutlinedTextField(
+                            value = newCategoryName,
+                            onValueChange = { newCategoryName = it },
+                            modifier = Modifier.fillMaxWidth(),
+                            placeholder = { Text("Category name") },
+                            singleLine = true,
+                            isError = addCategoryError != null
+                        )
+
+                        if (addCategoryError != null) {
+                            Text(
+                                text = addCategoryError,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = NovariColors.Error,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
                         }
 
-                    onSelectionChanged(updatedSelection)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp),
+                            horizontalArrangement = Arrangement.End
+                        ) {
+                            TextButton(onClick = {
+                                isAddingCategory = false
+                                newCategoryName = ""
+                            }) {
+                                Text("Cancel")
+                            }
+
+                            TextButton(onClick = {
+                                onAddCategory(newCategoryName)
+                            }) {
+                                Text("Add")
+                            }
+                        }
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .clickable { isAddingCategory = true }
+                            .padding(vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(44.dp)
+                                .clip(CircleShape)
+                                .background(NovariColors.SurfaceHigh),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = null,
+                                tint = NovariColors.Slate,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Text(
+                            text = "Add category",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = NovariColors.Navy
+                        )
+                    }
                 }
-            )
+            }
         }
 
         Spacer(
@@ -135,8 +223,8 @@ fun CategoryBottomSheetContent(
         ) {
             Text(
                 text = "Apply",
-                style = NovariTypography.labelLarge,
-                color = Color.White
+                style = MaterialTheme.typography.labelLarge,
+                color = NovariColors.Surface
             )
         }
     }
@@ -146,6 +234,7 @@ fun CategoryBottomSheetContent(
 @Composable
 private fun CategoryItem(
     title: String,
+    iconRes: Int,
     selected: Boolean,
     onClick: () -> Unit
 ) {
@@ -168,14 +257,14 @@ private fun CategoryItem(
                     if (selected) {
                         NovariColors.PaleTeal
                     } else {
-                        MaterialTheme.colorScheme.surfaceVariant
+                        NovariColors.SurfaceHigh
                     }
                 ),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 painter = painterResource(
-                    id = R.drawable.ic_category
+                    id = iconRes
                 ),
                 contentDescription = null,
                 tint = if (selected) {
@@ -193,7 +282,7 @@ private fun CategoryItem(
 
         Text(
             text = title,
-            style = NovariTypography.labelLarge,
+            style = MaterialTheme.typography.labelLarge,
             color = NovariColors.Navy,
             modifier = Modifier.weight(1f)
         )
@@ -225,7 +314,7 @@ private fun CategoryItem(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = Color.White,
+                    tint = NovariColors.Surface,
                     modifier = Modifier.size(16.dp)
                 )
             }

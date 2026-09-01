@@ -10,10 +10,6 @@ class FinancialSmsClassifier {
     )
     private val otpSignals = listOf("otp", "verification code", "one time password")
 
-    // TRAI DLT headers: promotional traffic is routed through an "AD-" prefixed sender
-    // ID, while transactional/service alerts use prefixes like "VM-", "BP-", "TX-", "JD-".
-    private val promotionalSender = Regex("""^AD-""", RegexOption.IGNORE_CASE)
-
     // Marketing phrasing that legitimate debit/credit alerts don't use, even though
     // promos often borrow "credited"/"cashback" wording that would otherwise pass the
     // transaction-verb check (e.g. "Rs 500 cashback credited instantly, use code SAVE500").
@@ -34,10 +30,9 @@ class FinancialSmsClassifier {
         Regex("""\bon\s+your\s+next\s+(?:purchase|order|transaction|booking)\b""")
     )
 
-    fun isFinancial(sender: String?, body: String): Boolean {
+    fun isFinancial(body: String): Boolean {
         val text = body.lowercase()
         if (otpSignals.any(text::contains)) return false
-        if (sender != null && promotionalSender.containsMatchIn(sender)) return false
         if (promotionalSignals.any { it.containsMatchIn(text) }) return false
         return transactionVerb.containsMatchIn(text)
     }

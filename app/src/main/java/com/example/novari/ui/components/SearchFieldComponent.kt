@@ -15,6 +15,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -29,7 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.novari.R
 import com.example.novari.ui.theme.NovariColors
-import com.example.novari.ui.theme.NovariTypography
+import com.example.novari.ui.theme.NovariShape
 
 @Composable
 fun SearchFieldComponent(
@@ -38,7 +39,7 @@ fun SearchFieldComponent(
     onSearch: () -> Unit,
     onClear: () -> Unit
 ) {
-    val shape = RoundedCornerShape(13.dp)
+    val shape = NovariShape.chip
 
     Row(
         modifier = Modifier
@@ -68,7 +69,7 @@ fun SearchFieldComponent(
             onValueChange = onValueChange,
             modifier = Modifier.weight(1f),
             singleLine = true,
-            textStyle = NovariTypography.bodyLarge.copy(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = NovariColors.Navy
             ),
             cursorBrush = SolidColor(NovariColors.Teal),
@@ -85,7 +86,7 @@ fun SearchFieldComponent(
                 if (value.isEmpty()) {
                     Text(
                         text = stringResource(R.string.search_transactions),
-                        style = NovariTypography.bodyLarge,
+                        style = MaterialTheme.typography.bodyLarge,
                         color = NovariColors.Slate
                     )
                 }

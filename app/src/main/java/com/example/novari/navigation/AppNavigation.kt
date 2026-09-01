@@ -18,11 +18,10 @@ import com.example.novari.ui.components.LegalWebView
 import com.example.novari.ui.screens.dashboard.DashboardScreen
 import com.example.novari.ui.screens.onboarding.OnboardingRoute
 import com.example.novari.ui.screens.permissions.SetupPermissionRoute
-import com.example.novari.ui.screens.permissions.SetupPermissionScreen
 import com.example.novari.ui.screens.settings.appearnce.AppearanceRoute
 import com.example.novari.ui.screens.settings.support.SupportScreen
 import com.example.novari.ui.screens.splash.SplashRoute
-import com.example.novari.ui.screens.splash.SplashScreen
+import com.example.novari.ui.screens.transactions.transaction_detail.TransactionDetailsRoute
 import com.example.novari.ui.screens.transactions.transaction_list.TransactionListScreen
 import com.example.novari.ui.theme.NovariMotion
 
@@ -112,6 +111,29 @@ fun AppNavigation(
                 },
                 onContactUs = {
                    // navController.navigate(Screen.Contact.route)
+                },
+
+                onTransactionDetailClick = { transactionId ->
+                    navController.navigate(Screen.NavigationDetail.createRoute(transactionId))
+                }
+            )
+        }
+
+        composable(
+            route = Screen.NavigationDetail.route,
+            arguments = listOf(
+                navArgument(Screen.NavigationDetail.ARG_TRANSACTION_ID) { type = NavType.StringType }
+            ),
+            enterTransition = { forwardEnter() },
+            popEnterTransition = { backEnter() },
+            popExitTransition = { backExit() }
+        ) {
+            TransactionDetailsRoute(
+                onBackClick = {
+                    navController.popBackStack()
+                },
+                onEditClick = {
+                    // TODO: navigate to the edit flow once it exists
                 }
             )
         }
@@ -134,11 +156,13 @@ fun AppNavigation(
         }
 
         composable(route = Screen.TransactionList.route) {
-            TransactionListScreen(onBackClick = {
-                navController.popBackStack()
-            })
+            TransactionListScreen(
+                onBackClick = { navController.popBackStack() },
+                onTransactionClick = { transactionId ->
+                    navController.navigate(Screen.NavigationDetail.createRoute(transactionId))
+                }
+            )
         }
-
 
         composable(
             route = Screen.SetupPermission.route,

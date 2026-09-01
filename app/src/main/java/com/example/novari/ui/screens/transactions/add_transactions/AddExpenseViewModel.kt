@@ -1,6 +1,5 @@
-package com.example.novari.ui.screens.transactions
+package com.example.novari.ui.screens.transactions.add_transactions
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.novari.core.database.entity.TransactionEntity
@@ -40,7 +39,7 @@ class AddExpenseViewModel @Inject constructor(
         viewModelScope.launch {
             repository.observeActive()
                 .catch { error ->
-                    Log.e("ActiveTransactions", "Failed to observe transactions", error)
+                    Timber.tag("ActiveTransactions").e(error, "Failed to observe transactions")
                 }
                 .collect { transactions ->
                 }

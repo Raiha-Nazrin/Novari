@@ -18,13 +18,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.novari.ui.theme.NovariColors
-import com.example.novari.ui.theme.NovariTypography
+import com.example.novari.ui.theme.NovariSpacing
 
+/**
+ * Canonical screen title block: optional back button, title, optional subtitle,
+ * optional trailing action (e.g. a notification bell). Used by every top-level
+ * screen so title/subtitle sizing, colour, and spacing stay identical app-wide.
+ */
 @Composable
 fun ScreenHeader(
-    onBackClick: (() -> Unit)? = null,
     title: String,
-    subtitle: String
+    subtitle: String? = null,
+    onBackClick: (() -> Unit)? = null,
+    trailing: (@Composable () -> Unit)? = null
 ) {
     Column(
         modifier = Modifier.fillMaxWidth()
@@ -36,12 +42,10 @@ fun ScreenHeader(
                 imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                 contentDescription = "Back",
                 tint = NovariColors.Navy,
-                modifier = Modifier.clickable{
-                    onBack()
-                }
+                modifier = Modifier.size(25.dp).clickable{onBack()}
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(NovariSpacing.md))
         }
 
         Row(
@@ -53,18 +57,21 @@ fun ScreenHeader(
             ) {
                 Text(
                     text = title,
-                    style = NovariTypography.headlineMedium
+                    style = MaterialTheme.typography.headlineMedium
                 )
 
-                Spacer(modifier = Modifier.height(6.dp))
+                if (subtitle != null) {
+                    Spacer(modifier = Modifier.height(NovariSpacing.sm))
 
-                Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = NovariColors.Slate
-                )
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = NovariColors.Slate
+                    )
+                }
             }
 
+            trailing?.invoke()
         }
     }
 }

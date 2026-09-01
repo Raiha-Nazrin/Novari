@@ -31,6 +31,7 @@ fun SpendingChart(
 
     val chartLineColor = NovariColors.ChartLine
     val chartGridColor = NovariColors.ChartGrid
+    val dotCoreColor = NovariColors.Surface
 
     Canvas(modifier = modifier) {
         val insetPx = HorizontalInset.toPx()
@@ -96,7 +97,7 @@ fun SpendingChart(
                     center = selected
                 )
                 drawCircle(
-                    color = Color.White,
+                    color = dotCoreColor,
                     radius = DotRadius.toPx() / 2,
                     center = selected
                 )

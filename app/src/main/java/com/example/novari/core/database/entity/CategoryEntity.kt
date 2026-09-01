@@ -16,5 +16,7 @@ data class CategoryEntity(
     val isSystem: Boolean,
     val isActive: Boolean,
     val createdAt: Long,
-    val updatedAt: Long
+    val updatedAt: Long,
+    val colorKey: String? = null,
+    val sortOrder: Int = 100
 )

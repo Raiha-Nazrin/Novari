@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -23,12 +24,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.novari.R
 import com.example.novari.core.model.TransactionType
 import com.example.novari.ui.model.Transaction
+import com.example.novari.ui.theme.NovariColors
 
 /**
  * Row for a single [Transaction] — icon, title, category/date, signed amount.
@@ -43,8 +44,6 @@ fun TransactionRowItem(
     transaction: Transaction,
     isSelected: Boolean,
     onClick: () -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -58,7 +57,7 @@ fun TransactionRowItem(
                 modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(NovariColors.SurfaceHigh),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -71,71 +70,52 @@ fun TransactionRowItem(
             Spacer(modifier = Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = transaction.title, style = MaterialTheme.typography.bodyLarge)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(text = transaction.title, style = MaterialTheme.typography.bodyLarge)
+                    if (transaction.isAutoDetected) {
+                        Spacer(modifier = Modifier.width(6.dp))
+                        AutoDetectedBadge()
+                    }
+                }
                 Text(
                     text = "${transaction.category} · ${transaction.date}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = NovariColors.Slate
                 )
             }
 
             val isIncome = transaction.type == TransactionType.INCOME
             Text(
-                text = "${if (isIncome) "+" else "-"}₹${formatTransactionAmount(transaction.amount)}",
+                text = "${if (isIncome) "+" else "-"}₹${formatTransactionAmount(transaction.amount.toLong())}",
                 style = MaterialTheme.typography.labelLarge,
-                color = if (isIncome) MaterialTheme.colorScheme.primary else Color.Red
+                color = if (isIncome) NovariColors.Teal else NovariColors.Error
             )
 
             Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_right),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = NovariColors.Slate,
                 modifier = Modifier
                     .size(20.dp)
                     .padding(start = 4.dp)
             )
         }
-
-        AnimatedVisibility(visible = isSelected) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onEdit,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_edit),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "Edit")
-                }
-
-                Button(
-                    onClick = onDelete,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "Delete")
-                }
-            }
-        }
     }
 }
 
 /** Simple thousands-separator formatting (e.g. 24560 -> 24,560). */
-fun formatTransactionAmount(amount: Int): String = "%,d".format(amount)
+fun formatTransactionAmount(amount: Long): String = "%,d".format(amount)
+
+/** Tag for a [Transaction] captured automatically from an SMS -- lets the user tell what to double-check. */
+@Composable
+private fun AutoDetectedBadge() {
+    Text(
+        text = "Auto",
+        style = MaterialTheme.typography.labelSmall,
+        color = NovariColors.Teal,
+        modifier = Modifier
+            .clip(RoundedCornerShape(6.dp))
+            .background(NovariColors.PaleTeal)
+            .padding(horizontal = 6.dp, vertical = 1.dp)
+    )
+}

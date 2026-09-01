@@ -1,5 +1,6 @@
 package com.example.novari.ui.screens.home
 
+import com.example.novari.sms.health.SmsDetectionHealthState
 import com.example.novari.ui.model.Transaction
 
 /**
@@ -20,12 +21,13 @@ enum class AutoTrackingPromptVisibility {
  */
 data class HomeUiState(
     val userName: String = "Arjun",
-    val monthlyExpense: Int = 24560 ,
-    val monthlyPercentageChange: Int = 8,
+    val monthlyExpense: Long = 0L,
+    val monthlyPercentageChange: Int = 0,
     val isLessThanLastMonth: Boolean = true,
-    val todayExpense: Int = 840,
-    val todayMessage: String = "You're doing okay today.",
+    val todayExpense: Long = 0L,
+    val todayMessage: String = "",
     val transactions: List<Transaction> = emptyList(),
-    val insightMessage: String = "You've spent less on dining this week.",
-    val autoTrackingPrompt: AutoTrackingPromptVisibility = AutoTrackingPromptVisibility.Loading
+    val insightMessage: String? = null,
+    val autoTrackingPrompt: AutoTrackingPromptVisibility = AutoTrackingPromptVisibility.Loading,
+    val smsHealth: SmsDetectionHealthState = SmsDetectionHealthState()
 )

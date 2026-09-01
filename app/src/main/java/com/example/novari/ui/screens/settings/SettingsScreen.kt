@@ -45,7 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.novari.BuildConfig
 import com.example.novari.R
+import com.example.novari.ui.components.ScreenHeader
 import com.example.novari.ui.theme.NovariColors
+import com.example.novari.ui.theme.NovariShape
 
 @Composable
 fun SettingsScreen(
@@ -57,6 +59,7 @@ fun SettingsScreen(
     onPrivacyPolicyClick: () -> Unit = {},
     onTermsClick: () -> Unit = {},
     onContactUsClick: () -> Unit = {},
+    onDetectionHealthClick: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val scrollState = rememberScrollState()
@@ -118,29 +121,10 @@ fun SettingsScreen(
 private fun ProfileHeader(
     onNotificationClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top
-    ) {
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = stringResource(R.string.settings),
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = stringResource(R.string.manage_your_novari_experience),
-                style = MaterialTheme.typography.bodyMedium,
-                color = NovariColors.Slate
-            )
-        }
-
-    }
+    ScreenHeader(
+        title = stringResource(R.string.settings),
+        subtitle = stringResource(R.string.manage_your_novari_experience)
+    )
 }
 
 @Composable
@@ -152,7 +136,7 @@ private fun PreferencesCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = NovariShape.card,
         color = NovariColors.Surface,
         border = BorderStroke(
             width = 1.dp,
@@ -190,7 +174,7 @@ private fun AboutNovariCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = NovariShape.card,
         color = NovariColors.Surface,
         border = BorderStroke(
             width = 1.dp,

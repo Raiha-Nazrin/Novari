@@ -5,6 +5,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -14,13 +15,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.novari.navigation.BottomNavItem
+import com.example.novari.ui.model.Transaction
 import com.example.novari.ui.screens.AddExpenseScreen
 import com.example.novari.ui.screens.home.HomeScreen
 import com.example.novari.ui.screens.home.HomeViewModel
 import com.example.novari.ui.screens.insights.InsightsScreen
+import com.example.novari.ui.screens.insights.InsightsViewModel
 import com.example.novari.ui.screens.search.SearchScreen
 import com.example.novari.ui.screens.settings.SettingsScreen
-import com.example.novari.ui.screens.transactions.AddTransactionScreen
 
 
 /**
@@ -42,6 +44,8 @@ fun DashboardScreen(
     onSeeAllTransactions: ()-> Unit = {},
     onAppearanceClick: () -> Unit = {},
     onContactUs: () -> Unit = {},
+    onDetectionHealthClick: () -> Unit = {},
+    onTransactionDetailClick :  (String) -> Unit = {},
     dashboardNavController: NavHostController = rememberNavController()
 ) {
     val currentBackStackEntry by dashboardNavController.currentBackStackEntryAsState()
@@ -68,7 +72,7 @@ fun DashboardScreen(
         NavHost(
             navController = dashboardNavController,
             startDestination = BottomNavItem.Home.route,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding).padding(0.dp)
         ) {
             composable(BottomNavItem.Home.route) {
                 val homeViewModel: HomeViewModel = hiltViewModel()
@@ -78,28 +82,33 @@ fun DashboardScreen(
                     onEnableAutoTracking = /* wire to future auto-tracking flow */
                         onEnableAutoTracking,
                     onAddExpenseManually = { /*  navigate to Add Expense flow */ },
-                    onTransactionClick = { /* : expand/collapse handled internally for now */ },
+                    onTransactionClick = { transactionId -> onTransactionDetailClick(transactionId)},
                     onEditTransaction = { /*  wire to future edit flow */ },
                     onDeleteTransaction = { /*  wire to future delete flow */ },
                     onSeeAllTransactions = onSeeAllTransactions
                 )
             }
             composable(BottomNavItem.Insights.route) {
-                InsightsScreen()
+                val insightsViewModel: InsightsViewModel = hiltViewModel()
+                val uiState by insightsViewModel.uiState.collectAsStateWithLifecycle()
+                InsightsScreen(uiState = uiState)
             }
             composable(BottomNavItem.Add.route) {
                 AddExpenseScreen(
                 )
             }
             composable(BottomNavItem.Search.route) {
-                SearchScreen()
+                SearchScreen(
+                    onTransactionClick = { transactionId -> onTransactionDetailClick(transactionId) }
+                )
             }
             composable(BottomNavItem.Profile.route) {
                 SettingsScreen(
                     onPrivacyPolicyClick = onOpenPrivacyPolicy,
                     onTermsClick = onOpenTerms,
                     onAppearanceClick = onAppearanceClick,
-                    onContactUsClick = onContactUs
+                    onContactUsClick = onContactUs,
+                    onDetectionHealthClick = onDetectionHealthClick
                 )
             }
         }

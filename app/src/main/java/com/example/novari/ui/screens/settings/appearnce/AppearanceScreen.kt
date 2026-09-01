@@ -17,16 +17,15 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,19 +36,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.novari.R
+import com.example.novari.ui.components.ScreenHeader
 import com.example.novari.ui.theme.AccentColor
+import com.example.novari.ui.theme.AppearanceSettings
 import com.example.novari.ui.theme.NovariColors
-import com.example.novari.ui.theme.NovariTypography
+import com.example.novari.ui.theme.NovariShape
 import com.example.novari.ui.theme.ThemeMode
 
 @Composable
 fun AppearanceScreen(
-    selectedTheme: ThemeMode = ThemeMode.LIGHT,
-    selectedAccent: AccentColor = AccentColor.TEAL,
+    draft: AppearanceSettings = AppearanceSettings(),
+    hasUnsavedChanges: Boolean = false,
+    isSaving: Boolean = false,
     onThemeSelected: (ThemeMode) -> Unit = {},
     onAccentSelected: (AccentColor) -> Unit = {},
+    onSave: () -> Unit = {},
     onBack: () -> Unit = {}
 ) {
     LazyColumn(
@@ -59,9 +61,9 @@ fun AppearanceScreen(
             .statusBarsPadding()
             .navigationBarsPadding(),
         contentPadding = PaddingValues(
-            start = 28.dp,
-            end = 28.dp,
-            top = 16.dp,
+            start = 24.dp,
+            end = 24.dp,
+            top = 28.dp,
             bottom = 32.dp
         )
     ) {
@@ -75,7 +77,7 @@ fun AppearanceScreen(
             Spacer(modifier = Modifier.height(30.dp))
 
             ThemeSection(
-                selectedTheme = selectedTheme,
+                selectedTheme = draft.theme,
                 onThemeSelected = onThemeSelected
             )
         }
@@ -84,8 +86,53 @@ fun AppearanceScreen(
             Spacer(modifier = Modifier.height(28.dp))
 
             AccentColorSection(
-                selectedAccent = selectedAccent,
+                selectedAccent = draft.accent,
                 onAccentSelected = onAccentSelected
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(28.dp))
+
+            AppearancePreviewCard(draft = draft)
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(28.dp))
+
+            SaveChangesButton(
+                enabled = hasUnsavedChanges && !isSaving,
+                isSaving = isSaving,
+                onClick = onSave
+            )
+        }
+    }
+}
+
+@Composable
+private fun SaveChangesButton(
+    enabled: Boolean,
+    isSaving: Boolean,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp),
+        shape = RoundedCornerShape(14.dp)
+    ) {
+        if (isSaving) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(20.dp),
+                strokeWidth = 2.dp,
+                color = NovariColors.Surface
+            )
+        } else {
+            Text(
+                text = stringResource(R.string.save_changes),
+                style = MaterialTheme.typography.labelLarge
             )
         }
     }
@@ -95,37 +142,11 @@ fun AppearanceScreen(
 private fun AppearanceHeader(
     onBack: () -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top
-    ) {
-        IconButton(onClick = onBack) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
-                contentDescription = stringResource(R.string.back),
-                tint = NovariColors.Navy
-            )
-        }
-
-        Spacer(modifier = Modifier.width(4.dp))
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = stringResource(R.string.appearance),
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = stringResource(R.string.customize_how_novari_looks_for_you),
-                style = NovariTypography.bodyLarge,
-                color = NovariColors.Slate
-            )
-        }
-    }
+    ScreenHeader(
+        title = stringResource(R.string.appearance),
+        subtitle = stringResource(R.string.customize_how_novari_looks_for_you),
+        onBackClick = onBack
+    )
 }
 @Composable
 private fun ThemeSection(
@@ -135,8 +156,7 @@ private fun ThemeSection(
     AppearanceCard {
         Text(
             text = stringResource(R.string.theme),
-            style = NovariTypography.headlineSmall,
-            fontSize = 15.sp
+            style = MaterialTheme.typography.titleMedium
         )
 
         Spacer(modifier = Modifier.height(18.dp))
@@ -189,12 +209,12 @@ private fun ThemeOption(
     Box(
         modifier = modifier
             .height(144.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .clip(NovariShape.card)
             .background(NovariColors.Surface)
             .border(
                 width = if (selected) 1.5.dp else 1.dp,
                 color = borderColor,
-                shape = RoundedCornerShape(18.dp)
+                shape = NovariShape.card
             )
             .clickable(onClick = onClick)
             .padding(16.dp)
@@ -226,12 +246,12 @@ private fun ThemeOption(
 
             Text(
                 text = title,
-                style = NovariTypography.titleSmall
+                style = MaterialTheme.typography.titleSmall
             )
 
             Text(
                 text = subtitle,
-                style = NovariTypography.bodySmall
+                style = MaterialTheme.typography.bodySmall
             )
         }
 
@@ -283,8 +303,7 @@ private fun AccentColorSection(
     AppearanceCard {
         Text(
             text = stringResource(R.string.accent_color),
-            style = NovariTypography.headlineSmall,
-            fontSize = 15.sp
+            style = MaterialTheme.typography.titleMedium
         )
 
         Spacer(modifier = Modifier.height(24.dp))

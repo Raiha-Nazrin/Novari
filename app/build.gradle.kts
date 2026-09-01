@@ -100,4 +100,5 @@ dependencies {
 
     // The compose calendar library for Android
     implementation("com.kizitonwose.calendar:compose:2.10.1")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 }

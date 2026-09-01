@@ -48,6 +48,13 @@ class DataStoreAppearancePreferences @Inject constructor(
         dataStore.edit { preferences -> preferences[accentColorKey] = accent.name }
     }
 
+    override suspend fun setSettings(settings: AppearanceSettings) {
+        dataStore.edit { preferences ->
+            preferences[themeModeKey] = settings.theme.name
+            preferences[accentColorKey] = settings.accent.name
+        }
+    }
+
     private inline fun <reified T : Enum<T>> String?.toEnumOrDefault(default: T): T =
         this?.let { raw -> runCatching { enumValueOf<T>(raw) }.getOrDefault(default) } ?: default
 }

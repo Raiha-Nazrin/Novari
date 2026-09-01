@@ -1,9 +1,9 @@
 package com.example.novari.ui.screens.home
 
-import androidx.annotation.DrawableRes
-import com.example.novari.R
 import com.example.novari.core.database.entity.CategoryEntity
 import com.example.novari.core.database.entity.TransactionEntity
+import com.example.novari.core.database.entity.iconFor
+import com.example.novari.core.model.TransactionSource
 import com.example.novari.ui.model.Transaction
 import java.time.Instant
 import java.time.LocalDate
@@ -34,16 +34,9 @@ fun TransactionEntity.toHomeTransaction(
         date = transactionDate.toRelativeDateLabel(today),
         amount = (amountMinor / 100L).toInt(),
         iconRes = category.iconFor(),
-        type = transactionType
+        type = transactionType,
+        isAutoDetected = source == TransactionSource.SMS
     )
-}
-
-@DrawableRes
-private fun CategoryEntity?.iconFor(): Int = when (this?.iconKey) {
-    "food" -> R.drawable.ic_food
-    "transport" -> R.drawable.ic_transport
-    "shopping" -> R.drawable.ic_shopping
-    else -> R.drawable.ic_category
 }
 
 private val shortDateFormatter = DateTimeFormatter.ofPattern("d MMM")

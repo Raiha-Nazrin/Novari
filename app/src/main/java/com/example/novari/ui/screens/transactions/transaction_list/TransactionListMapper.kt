@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter
 
 private val monthLabelFormatter = DateTimeFormatter.ofPattern("MMMM yyyy")
 private val dayHeaderFormatter = DateTimeFormatter.ofPattern("MMMM d")
+private val chipDayMonthFormatter = DateTimeFormatter.ofPattern("d MMM")
 
 /** "August 2026" for the given month. */
 fun YearMonth.toMonthLabel(): String = atDay(1).format(monthLabelFormatter)
@@ -21,6 +22,35 @@ fun YearMonth.toEpochMillisRange(zoneId: ZoneId = ZoneId.systemDefault()): LongR
     val start = atDay(1).atStartOfDay(zoneId).toInstant().toEpochMilli()
     val end = atEndOfMonth().atTime(23, 59, 59, 999_999_999).atZone(zoneId).toInstant().toEpochMilli()
     return start..end
+}
+
+/** Epoch-millis range covering every millisecond of the selected day(s), in the local zone. */
+fun DateFilter.toEpochMillisRange(zoneId: ZoneId = ZoneId.systemDefault()): LongRange? =
+    when (this) {
+        DateFilter.None -> null
+        is DateFilter.Single -> date.toDayRange(zoneId)
+        is DateFilter.Range -> start.atStartOfDay(zoneId).toInstant().toEpochMilli()..
+            end.atTime(23, 59, 59, 999_999_999).atZone(zoneId).toInstant().toEpochMilli()
+    }
+
+private fun LocalDate.toDayRange(zoneId: ZoneId): LongRange {
+    val start = atStartOfDay(zoneId).toInstant().toEpochMilli()
+    val end = atTime(23, 59, 59, 999_999_999).atZone(zoneId).toInstant().toEpochMilli()
+    return start..end
+}
+
+/** Short label for the Date filter chip, e.g. "6 Aug" or "1 Aug – 15 Aug". */
+fun DateFilter.chipLabel(): String? = when (this) {
+    DateFilter.None -> null
+    is DateFilter.Single -> date.format(chipDayMonthFormatter)
+    is DateFilter.Range -> "${start.format(chipDayMonthFormatter)} – ${end.format(chipDayMonthFormatter)}"
+}
+
+/** "August 2026" for [DateFilter.None], otherwise the picked day/range spelled out. */
+fun DateFilter.toRangeLabel(fallback: YearMonth): String = when (this) {
+    DateFilter.None -> fallback.toMonthLabel()
+    is DateFilter.Single -> date.format(dayHeaderFormatter)
+    is DateFilter.Range -> "${start.format(chipDayMonthFormatter)} – ${end.format(chipDayMonthFormatter)}"
 }
 
 /**
