@@ -4,34 +4,42 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,55 +52,44 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.novari.R
+import com.example.novari.core.model.SearchField
+import com.example.novari.ui.components.AmountRangeBottomSheet
+import com.example.novari.ui.components.CalendarBottomSheet
+import com.example.novari.ui.components.CategoryBottomSheetContent
+import com.example.novari.ui.components.MerchantBottomSheetContent
+import com.example.novari.ui.components.ScreenHeader
+import com.example.novari.ui.components.TransactionRowItem
+import com.example.novari.ui.model.Transaction
 import com.example.novari.ui.theme.NovariColors
 import com.example.novari.ui.theme.NovariColors.DarkTeal
-import com.example.novari.ui.theme.NovariTypography
+import com.example.novari.ui.theme.NovariShape
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     onBackClick: () -> Unit = {},
     onNotificationClick: () -> Unit = {},
-    onSearch: (String) -> Unit = {},
-    onMerchantClick: () -> Unit = {},
-    onCategoryClick: () -> Unit = {},
-    onAmountClick: () -> Unit = {},
-    onDateClick: () -> Unit = {}
+    onTransactionClick: (String) -> Unit = {},
+    viewModel: SearchViewModel = hiltViewModel()
 ) {
-    var query by remember {
-        mutableStateOf("")
-    }
-
-    val recentSearches = remember {
-        mutableStateListOf(
-            "Swiggy",
-            "Grocery",
-            "Amazon",
-            "Uber",
-            "Zomato"
-        )
-    }
-
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
 
-    fun performSearch(value: String) {
-        val searchText = value.trim()
+    var showCategorySheet by rememberSaveable { mutableStateOf(false) }
+    var showMerchantSheet by rememberSaveable { mutableStateOf(false) }
+    var showAmountSheet by rememberSaveable { mutableStateOf(false) }
+    var showCalendar by rememberSaveable { mutableStateOf(false) }
+    var pendingCategorySelection by rememberSaveable { mutableStateOf(uiState.selectedCategoryIds) }
+    var pendingMerchantSelection by rememberSaveable { mutableStateOf(uiState.selectedMerchantKeys) }
 
-        if (searchText.isBlank()) {
-            return
-        }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-        recentSearches.remove(searchText)
-        recentSearches.add(0, searchText)
-
-        if (recentSearches.size > 5) {
-            recentSearches.removeAt(recentSearches.lastIndex)
-        }
-
-        query = searchText
+    fun submitSearch() {
+        viewModel.onSubmitSearch()
         focusManager.clearFocus()
-        onSearch(searchText)
     }
 
     Surface(
@@ -102,9 +99,8 @@ fun SearchScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .navigationBarsPadding()
                 .padding(horizontal = 24.dp)
-                .padding(top = 28.dp, bottom = 32.dp),
+                .padding(top = 28.dp),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             item {
@@ -118,16 +114,11 @@ fun SearchScreen(
                 Spacer(modifier = Modifier.height(25.dp))
 
                 SearchInput(
-                    value = query,
-                    onValueChange = {
-                        query = it
-                    },
-                    onSearch = {
-                        performSearch(query)
-                    },
-                    onClear = {
-                        query = ""
-                    }
+                    value = uiState.query,
+                    searchField = uiState.searchField,
+                    onValueChange = viewModel::onQueryChange,
+                    onSearch = { submitSearch() },
+                    onClear = viewModel::clearQuery
                 )
             }
 
@@ -136,89 +127,235 @@ fun SearchScreen(
 
                 Text(
                     text = stringResource(R.string.search_by),
-                    style = NovariTypography.titleMedium,
-                    fontSize = 16.sp
+                    style = MaterialTheme.typography.titleMedium
                 )
 
                 Spacer(modifier = Modifier.height(22.dp))
 
                 SearchFilterGrid(
-                    onMerchantClick = onMerchantClick,
-                    onCategoryClick = onCategoryClick,
-                    onAmountClick = onAmountClick,
-                    onDateClick = onDateClick
+                    selectedField = uiState.searchField,
+                    onMerchantClick = {
+                        viewModel.onSearchFieldSelected(SearchField.MERCHANT)
+                        pendingMerchantSelection = uiState.selectedMerchantKeys
+                        showMerchantSheet = true
+                    },
+                    onCategoryClick = {
+                        viewModel.onSearchFieldSelected(SearchField.CATEGORY)
+                        pendingCategorySelection = uiState.selectedCategoryIds
+                        showCategorySheet = true
+                    },
+                    onAmountClick = {
+                        viewModel.onSearchFieldSelected(SearchField.AMOUNT)
+                        showAmountSheet = true
+                    },
+                    onDateClick = {
+                        viewModel.onSearchFieldSelected(SearchField.DATE)
+                        showCalendar = true
+                    }
                 )
             }
 
-            if (recentSearches.isNotEmpty()) {
-                item {
+            when {
+                uiState.isLoading -> item {
                     Spacer(modifier = Modifier.height(48.dp))
-
-                    Text(
-                        text = stringResource(R.string.recent_searches),
-                        style = NovariTypography.titleMedium
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 32.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(color = NovariColors.Teal)
+                    }
                 }
 
-                items(
-                    items = recentSearches,
-                    key = { it }
-                ) { search ->
-                    RecentSearchItem(
-                        search = search,
-                        onClick = {
-                            query = search
-                            performSearch(search)
-                        },
-                        onRemove = {
-                            recentSearches.remove(search)
-                        }
+                uiState.errorMessage != null -> item {
+                    Spacer(modifier = Modifier.height(48.dp))
+                    SearchErrorMessage(
+                        message = uiState.errorMessage.orEmpty(),
+                        onRetry = viewModel::retry
                     )
+                }
+
+                uiState.hasSearched -> {
+                    item {
+                        Spacer(modifier = Modifier.height(48.dp))
+
+                        Text(
+                            text = stringResource(R.string.search_results),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    if (uiState.isEmptyResult) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.no_transactions_match_search),
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = NovariColors.Slate,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 32.dp)
+                            )
+                        }
+                    } else {
+                        items(items = uiState.results, key = { it.id }) { transaction ->
+                            SearchResultRow(
+                                transaction = transaction,
+                                onClick = { onTransactionClick(transaction.id) }
+                            )
+                        }
+                    }
+                }
+
+                uiState.showRecentSearches -> {
+                    item {
+                        Spacer(modifier = Modifier.height(48.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(R.string.recent_searches),
+                                style = MaterialTheme.typography.titleMedium,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            TextButton(onClick = viewModel::onClearRecentSearches) {
+                                Text(
+                                    text = stringResource(R.string.clear_all),
+                                    color = NovariColors.Slate
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    items(items = uiState.recentSearches, key = { it }) { search ->
+                        RecentSearchItem(
+                            search = search,
+                            onClick = { viewModel.onRecentSearchClick(search) },
+                            onRemove = { viewModel.onRemoveRecentSearch(search) }
+                        )
+                    }
                 }
             }
         }
+    }
+
+    if (showCategorySheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showCategorySheet = false },
+            sheetState = sheetState,
+            containerColor = NovariColors.Background,
+            dragHandle = { BottomSheetDefaults.DragHandle(color = NovariColors.Border) }
+        ) {
+            CategoryBottomSheetContent(
+                categories = uiState.categories,
+                selectedCategoryIds = pendingCategorySelection,
+                onSelectionChanged = { pendingCategorySelection = it },
+                onAddCategory = { name -> viewModel.addCategory(name) },
+                onApply = {
+                    showCategorySheet = false
+                    viewModel.setCategoryFilter(pendingCategorySelection)
+                },
+                onDismiss = {
+                    showCategorySheet = false
+                    viewModel.clearAddCategoryError()
+                },
+                addCategoryError = uiState.addCategoryError
+            )
+        }
+    }
+
+    if (showMerchantSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showMerchantSheet = false },
+            sheetState = sheetState,
+            containerColor = NovariColors.Background,
+            dragHandle = { BottomSheetDefaults.DragHandle(color = NovariColors.Border) }
+        ) {
+            MerchantBottomSheetContent(
+                merchants = uiState.merchants,
+                selectedMerchantKeys = pendingMerchantSelection,
+                onSelectionChanged = { pendingMerchantSelection = it },
+                onApply = {
+                    showMerchantSheet = false
+                    viewModel.setMerchantFilter(pendingMerchantSelection)
+                },
+                onDismiss = { showMerchantSheet = false }
+            )
+        }
+    }
+
+    if (showAmountSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showAmountSheet = false },
+            sheetState = sheetState,
+            containerColor = NovariColors.Background,
+            dragHandle = { BottomSheetDefaults.DragHandle(color = NovariColors.Border) }
+        ) {
+            AmountRangeBottomSheet(
+                initialRange = uiState.amountRange,
+                onApply = { range ->
+                    showAmountSheet = false
+                    viewModel.setAmountRange(range)
+                },
+                onClear = {
+                    showAmountSheet = false
+                    viewModel.setAmountRange(AmountRange())
+                },
+                onDismiss = { showAmountSheet = false }
+            )
+        }
+    }
+
+    if (showCalendar) {
+        CalendarBottomSheet(
+            initialFilter = uiState.dateFilter,
+            onApply = { filter ->
+                viewModel.setDateFilter(filter)
+                showCalendar = false
+            },
+            onClear = {
+                viewModel.clearDateFilter()
+                showCalendar = false
+            },
+            onDismiss = { showCalendar = false }
+        )
     }
 }
 
 @Composable
-private fun SearchHeader(
+fun SearchHeader(
     onBackClick: () -> Unit,
     onNotificationClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top
-    ) {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = stringResource(R.string.search),
-                style = NovariTypography.headlineMedium
-            )
+    ScreenHeader(
+        title = stringResource(R.string.search),
+        subtitle = stringResource(R.string.find_a_transaction_in_seconds)
+    )
+}
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = stringResource(R.string.find_a_transaction_in_seconds),
-                style = MaterialTheme.typography.bodyMedium,
-                color = NovariColors.Slate,
-            )
-        }
-
-    }
+private fun placeholderFor(searchField: SearchField): Int = when (searchField) {
+    SearchField.MERCHANT -> R.string.search_placeholder_merchant
+    SearchField.CATEGORY -> R.string.search_placeholder_category
+    SearchField.AMOUNT -> R.string.search_placeholder_amount
+    SearchField.DATE -> R.string.search_placeholder_date
 }
 
 @Composable
 private fun SearchInput(
     value: String,
+    searchField: SearchField,
     onValueChange: (String) -> Unit,
     onSearch: () -> Unit,
     onClear: () -> Unit
 ) {
-    val shape = RoundedCornerShape(13.dp)
+    val shape = NovariShape.chip
 
     Row(
         modifier = Modifier
@@ -248,24 +385,22 @@ private fun SearchInput(
             onValueChange = onValueChange,
             modifier = Modifier.weight(1f),
             singleLine = true,
-            textStyle = NovariTypography.bodyLarge.copy(
+            textStyle = MaterialTheme.typography.bodyLarge.copy(
                 color = NovariColors.Navy
             ),
             cursorBrush = SolidColor(NovariColors.Teal),
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
+                keyboardType = if (searchField == SearchField.AMOUNT) KeyboardType.Number else KeyboardType.Text,
                 imeAction = ImeAction.Search
             ),
             keyboardActions = KeyboardActions(
-                onSearch = {
-                    onSearch()
-                }
+                onSearch = { onSearch() }
             ),
             decorationBox = { innerTextField ->
                 if (value.isEmpty()) {
                     Text(
-                        text = stringResource(R.string.search_transactions),
-                        style = NovariTypography.bodyLarge,
+                        text = stringResource(placeholderFor(searchField)),
+                        style = MaterialTheme.typography.bodyLarge,
                         color = NovariColors.Slate
                     )
                 }
@@ -283,7 +418,7 @@ private fun SearchInput(
                     .size(30.dp)
                     .background(
                         color = NovariColors.Mint,
-                        shape = androidx.compose.foundation.shape.CircleShape
+                        shape = CircleShape
                     )
             ) {
                 Icon(
@@ -299,6 +434,7 @@ private fun SearchInput(
 
 @Composable
 private fun SearchFilterGrid(
+    selectedField: SearchField,
     onMerchantClick: () -> Unit,
     onCategoryClick: () -> Unit,
     onAmountClick: () -> Unit,
@@ -315,6 +451,7 @@ private fun SearchFilterGrid(
                 modifier = Modifier.weight(1f),
                 icon = painterResource(R.drawable.ic_merchant),
                 title = stringResource(R.string.merchant),
+                selected = selectedField == SearchField.MERCHANT,
                 onClick = onMerchantClick
             )
 
@@ -322,6 +459,7 @@ private fun SearchFilterGrid(
                 modifier = Modifier.weight(1f),
                 icon = painterResource(R.drawable.ic_category),
                 title = stringResource(R.string.category),
+                selected = selectedField == SearchField.CATEGORY,
                 onClick = onCategoryClick
             )
         }
@@ -334,6 +472,7 @@ private fun SearchFilterGrid(
                 modifier = Modifier.weight(1f),
                 icon = painterResource(R.drawable.ic_amount),
                 title = stringResource(R.string.amount),
+                selected = selectedField == SearchField.AMOUNT,
                 onClick = onAmountClick
             )
 
@@ -341,6 +480,7 @@ private fun SearchFilterGrid(
                 modifier = Modifier.weight(1f),
                 icon = painterResource(R.drawable.ic_date),
                 title = stringResource(R.string.date),
+                selected = selectedField == SearchField.DATE,
                 onClick = onDateClick
             )
         }
@@ -352,18 +492,19 @@ private fun SearchFilterCard(
     modifier: Modifier = Modifier,
     icon: Painter,
     title: String,
+    selected: Boolean,
     onClick: () -> Unit
 ) {
-    val shape = RoundedCornerShape(12.dp)
+    val shape = NovariShape.chip
 
     Row(
         modifier = modifier
             .height(60.dp)
             .clip(shape)
-            .background(NovariColors.Surface)
+            .background(if (selected) NovariColors.Mint else NovariColors.Surface)
             .border(
                 width = 1.dp,
-                color = NovariColors.Border,
+                color = if (selected) NovariColors.Teal else NovariColors.Border,
                 shape = shape
             )
             .clickable(onClick = onClick)
@@ -381,9 +522,59 @@ private fun SearchFilterCard(
 
         Text(
             text = title,
-            style = NovariTypography.titleSmall,
-            fontSize = 14.sp
+            style = MaterialTheme.typography.bodyMedium
         )
+    }
+}
+
+@Composable
+private fun SearchResultRow(
+    transaction: Transaction,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(NovariColors.Surface)
+            .border(1.dp, NovariColors.Border, RoundedCornerShape(20.dp))
+            .padding(horizontal = 4.dp)
+    ) {
+        TransactionRowItem(
+            transaction = transaction,
+            isSelected = false,
+            onClick = onClick
+        )
+    }
+
+    Spacer(modifier = Modifier.height(12.dp))
+}
+
+@Composable
+private fun SearchErrorMessage(
+    message: String,
+    onRetry: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyMedium,
+            color = NovariColors.Slate
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        TextButton(onClick = onRetry) {
+            Text(
+                text = stringResource(R.string.retry),
+                color = NovariColors.Teal
+            )
+        }
     }
 }
 
@@ -405,7 +596,7 @@ private fun RecentSearchItem(
                 imageVector = Icons.Outlined.Search,
                 contentDescription = null,
                 tint = NovariColors.Slate,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(25.dp)
             )
 
             Spacer(modifier = Modifier.size(26.dp))
@@ -413,7 +604,7 @@ private fun RecentSearchItem(
             Text(
                 text = search,
                 modifier = Modifier.weight(1f),
-                style = NovariTypography.titleSmall
+                style = MaterialTheme.typography.bodyMedium
             )
 
             IconButton(
@@ -424,12 +615,12 @@ private fun RecentSearchItem(
                     imageVector = Icons.Outlined.Close,
                     contentDescription = "Remove $search",
                     tint = NovariColors.Slate,
-                    modifier = Modifier.size(25.dp)
+                    modifier = Modifier.size(22.dp)
                 )
             }
         }
 
-        androidx.compose.material3.HorizontalDivider(
+        HorizontalDivider(
             color = NovariColors.Divider,
             thickness = 1.dp
         )

@@ -18,7 +18,11 @@ data class SmsProcessingEntity(
     val status: SmsProcessingStatus,
     val transactionId: String?,
     val processedAt: Long?,
-    val createdAt: Long
+    val createdAt: Long,
+    // Stamped with SmsReparseGate.PARSER_VERSION when a PROCESSED row is saved. Lets a parser
+    // bump find rows that were parsed by an older, less accurate version and are worth
+    // re-deriving -- see SmsReparseGate.reparseStaleProcessedRows.
+    val derivedRevision: Int = 0
 )
 
 enum class SmsProcessingStatus {

@@ -39,6 +39,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -62,11 +63,13 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.timber)
 
     implementation(libs.androidx.compose.material.icons.extended)
     ksp(libs.hilt.android.compiler)
     testImplementation(libs.junit)
     testImplementation(libs.hilt.android.testing)
+    testImplementation(libs.kotlinx.coroutines.test)
     kspTest(libs.hilt.android.compiler)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
@@ -81,4 +84,21 @@ dependencies {
     // AndroidX SQLite support
     implementation("net.zetetic:sqlcipher-android:4.17.0@aar")
     implementation("androidx.sqlite:sqlite:2.6.2")
+
+    implementation("androidx.work:work-runtime:2.11.2")
+
+    // Optional for Kotlin/coroutine convenience APIs
+    implementation("androidx.work:work-runtime-ktx:2.11.2")
+
+    // Testing
+    androidTestImplementation("androidx.work:work-testing:2.11.2")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+
+    // The view calendar library for Android
+    implementation("com.kizitonwose.calendar:view:2.10.1")
+
+    // The compose calendar library for Android
+    implementation("com.kizitonwose.calendar:compose:2.10.1")
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
 }

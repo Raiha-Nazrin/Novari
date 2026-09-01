@@ -1,6 +1,7 @@
 package com.example.novari.ui.screens.settings
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -30,16 +31,23 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.example.novari.BuildConfig
 import com.example.novari.R
+import com.example.novari.ui.components.ScreenHeader
 import com.example.novari.ui.theme.NovariColors
+import com.example.novari.ui.theme.NovariShape
 
 @Composable
 fun SettingsScreen(
@@ -49,7 +57,10 @@ fun SettingsScreen(
     onPrivacyClick: () -> Unit = {},
     onBackupClick: () -> Unit = {},
     onPrivacyPolicyClick: () -> Unit = {},
-    onTermsClick: () -> Unit = {}
+    onTermsClick: () -> Unit = {},
+    onContactUsClick: () -> Unit = {},
+    onDetectionHealthClick: () -> Unit = {},
+    viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val scrollState = rememberScrollState()
 
@@ -101,7 +112,7 @@ fun SettingsScreen(
             onAboutNovariClick = onAppearanceClick,
             onPrivacyPolicyClick = onPrivacyPolicyClick,
             onTermsClick = onTermsClick,
-            onSupportClick = onBackupClick
+            onSupportClick = onContactUsClick
         )
     }
 }
@@ -110,29 +121,10 @@ fun SettingsScreen(
 private fun ProfileHeader(
     onNotificationClick: () -> Unit
 ) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.Top
-    ) {
-
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = stringResource(R.string.settings),
-                style = MaterialTheme.typography.headlineMedium
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Text(
-                text = stringResource(R.string.manage_your_novari_experience),
-                style = MaterialTheme.typography.bodyMedium,
-                color = NovariColors.Slate
-            )
-        }
-
-    }
+    ScreenHeader(
+        title = stringResource(R.string.settings),
+        subtitle = stringResource(R.string.manage_your_novari_experience)
+    )
 }
 
 @Composable
@@ -144,7 +136,7 @@ private fun PreferencesCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = NovariShape.card,
         color = NovariColors.Surface,
         border = BorderStroke(
             width = 1.dp,
@@ -154,7 +146,7 @@ private fun PreferencesCard(
         Column {
 
             PreferenceItem(
-                icon = Icons.Outlined.Brightness6,
+                icon = painterResource(R.drawable.ic_theme),
                 title = "Appearance",
                 subtitle = "Choose how Novari looks",
                 onClick = onAppearanceClick
@@ -163,7 +155,7 @@ private fun PreferencesCard(
             PreferenceDivider()
 
             PreferenceItem(
-                icon = Icons.Outlined.NotificationsNone,
+                icon = painterResource(R.drawable.ic_notifications),
                 title = "Notifications",
                 subtitle = "Manage reminders and alerts",
                 onClick = onNotificationsClick
@@ -178,11 +170,11 @@ private fun AboutNovariCard(
     onAboutNovariClick: () -> Unit,
     onPrivacyPolicyClick: () -> Unit,
     onTermsClick: () -> Unit,
-    onSupportClick: () -> Unit
+    onSupportClick: () -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = NovariShape.card,
         color = NovariColors.Surface,
         border = BorderStroke(
             width = 1.dp,
@@ -192,7 +184,7 @@ private fun AboutNovariCard(
         Column {
 
             PreferenceItem(
-                icon = Icons.Outlined.Brightness6,
+                icon = painterResource(R.drawable.ic_about_novari),
                 title = "About Team",
                 subtitle = "Learn more about Novari",
                 onClick = onAboutNovariClick
@@ -201,7 +193,7 @@ private fun AboutNovariCard(
             PreferenceDivider()
 
             PreferenceItem(
-                icon = Icons.Outlined.NotificationsNone,
+                icon = painterResource(R.drawable.ic_terms_conditions),
                 title = "Privacy Policy",
                 subtitle = "How Novari protects your data",
                 onClick = onPrivacyPolicyClick
@@ -210,7 +202,7 @@ private fun AboutNovariCard(
             PreferenceDivider()
 
             PreferenceItem(
-                icon = Icons.Outlined.Shield,
+                icon = painterResource(R.drawable.ic_terms_conditions),
                 title = "Terms",
                 subtitle = "Rules for using Novari",
                 onClick = onTermsClick
@@ -219,7 +211,7 @@ private fun AboutNovariCard(
             PreferenceDivider()
 
             PreferenceItem(
-                icon = Icons.Outlined.Cloud,
+                icon = painterResource(R.drawable.ic_support),
                 title = "Support",
                 subtitle = "Get help when you need it",
                 onClick = onSupportClick
@@ -230,7 +222,7 @@ private fun AboutNovariCard(
 
 @Composable
 private fun PreferenceItem(
-    icon: ImageVector,
+    icon: Painter,
     title: String,
     subtitle: String,
     onClick: () -> Unit
@@ -247,22 +239,11 @@ private fun PreferenceItem(
     ) {
 
         // Icon container
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .background(
-                    color = NovariColors.PaleTeal,
-                    shape = CircleShape
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = NovariColors.Navy,
-                modifier = Modifier.size(22.dp)
-            )
-        }
+        Image(
+            painter = icon,
+            contentDescription = null,
+            modifier = Modifier.size(40.dp)
+        )
 
         Spacer(modifier = Modifier.width(20.dp))
 

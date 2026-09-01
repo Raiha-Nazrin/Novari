@@ -2,6 +2,8 @@ package com.example.novari.core.database
 
 import android.content.Context
 import androidx.room.Room
+import com.example.novari.BuildConfig
+import com.example.novari.core.database.migration.NovariMigrations
 import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 /**
@@ -15,6 +17,28 @@ object DatabaseProvider {
         context: Context,
         databasePassword: ByteArray
     ): NovariDatabase {
+        // Debug builds skip SQLCipher and use Room's plain SQLite connection so the
+        // Android Studio Database Inspector can attach (it cannot parse SQLCipher's
+        // encrypted page format). Release builds stay encrypted.
+        if (BuildConfig.DEBUG) {
+            databasePassword.fill(0)
+            return Room.databaseBuilder(
+                context,
+                NovariDatabase::class.java,
+                DATABASE_NAME
+            )
+                // Add only real, tested migrations here.
+                .addMigrations(
+                    NovariMigrations.MIGRATION_1_2,
+                    NovariMigrations.MIGRATION_2_3,
+                    NovariMigrations.MIGRATION_3_4,
+                    NovariMigrations.MIGRATION_4_5,
+                    NovariMigrations.MIGRATION_5_6,
+                    NovariMigrations.MIGRATION_6_7
+                )
+                .build()
+        }
+
         System.loadLibrary("sqlcipher")
 
         // Room opens the connection lazily, so this array must stay valid beyond this
@@ -33,7 +57,14 @@ object DatabaseProvider {
             )
                 .openHelperFactory(factory)
                 // Add only real, tested migrations here.
-                // .addMigrations(NovariMigrations.MIGRATION_1_2)
+                .addMigrations(
+                    NovariMigrations.MIGRATION_1_2,
+                    NovariMigrations.MIGRATION_2_3,
+                    NovariMigrations.MIGRATION_3_4,
+                    NovariMigrations.MIGRATION_4_5,
+                    NovariMigrations.MIGRATION_5_6,
+                    NovariMigrations.MIGRATION_6_7
+                )
                 .build()
         } finally {
             databasePassword.fill(0)

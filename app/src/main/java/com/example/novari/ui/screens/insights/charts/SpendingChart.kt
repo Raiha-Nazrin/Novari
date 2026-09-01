@@ -29,6 +29,10 @@ fun SpendingChart(
 ) {
     if (points.size < 2) return
 
+    val chartLineColor = NovariColors.ChartLine
+    val chartGridColor = NovariColors.ChartGrid
+    val dotCoreColor = NovariColors.Surface
+
     Canvas(modifier = modifier) {
         val insetPx = HorizontalInset.toPx()
         val width = size.width
@@ -55,7 +59,7 @@ fun SpendingChart(
             path = areaPath,
             brush = Brush.verticalGradient(
                 colors = listOf(
-                    NovariColors.ChartLine.copy(alpha = 0.18f),
+                    chartLineColor.copy(alpha = 0.18f),
                     Color.Transparent
                 )
             )
@@ -74,7 +78,7 @@ fun SpendingChart(
 
         drawPath(
             path = linePath,
-            color = NovariColors.ChartLine,
+            color = chartLineColor,
             style = Stroke(width = StrokeWidth.toPx(), cap = StrokeCap.Round)
         )
 
@@ -83,17 +87,17 @@ fun SpendingChart(
                 val selected = coordinates[index]
 
                 drawCircle(
-                    color = NovariColors.ChartLine.copy(alpha = 0.18f),
+                    color = chartLineColor.copy(alpha = 0.18f),
                     radius = SelectedHaloRadius.toPx(),
                     center = selected
                 )
                 drawCircle(
-                    color = NovariColors.ChartLine,
+                    color = chartLineColor,
                     radius = DotRadius.toPx(),
                     center = selected
                 )
                 drawCircle(
-                    color = Color.White,
+                    color = dotCoreColor,
                     radius = DotRadius.toPx() / 2,
                     center = selected
                 )
@@ -101,7 +105,7 @@ fun SpendingChart(
         }
 
         drawLine(
-            color = NovariColors.ChartGrid,
+            color = chartGridColor,
             start = Offset(0f, chartBottom),
             end = Offset(width, chartBottom),
             strokeWidth = 1.dp.toPx()

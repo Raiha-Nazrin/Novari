@@ -22,8 +22,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -43,22 +41,24 @@ import com.example.novari.ui.haptics.rememberNovariHaptics
 import com.example.novari.ui.motion.StaggeredEntry
 import com.example.novari.ui.theme.NovariColors
 import com.example.novari.ui.theme.NovariMotion
-import com.example.novari.ui.theme.NovariTypography
+import com.example.novari.ui.theme.NovariShape
 
 @Composable
 fun SetupPermissionScreen(
+    modifier: Modifier = Modifier,
     uiState: SetupPermissionUiState = SetupPermissionUiState(),
     onPermissionAction: (PermissionType) -> Unit = {},
     onClose: () -> Unit = {},
-    onMaybeLater: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onMaybeLater: () -> Unit = {}
 ) {
     val haptics = rememberNovariHaptics()
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 20.dp)
+            .background(NovariColors.Background)
+            .statusBarsPadding()
+            .padding(horizontal = 24.dp, vertical = 20.dp)
     ) {
 
         Box(
@@ -74,7 +74,7 @@ fun SetupPermissionScreen(
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Close",
-                    tint = Color.Black,
+                    tint = NovariColors.Navy,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -105,10 +105,7 @@ fun SetupPermissionScreen(
                 text = stringResource(R.string.almost_ready),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                fontWeight = FontWeight.SemiBold,
-                style = NovariTypography.displayLarge.copy(
-                    fontSize = 20.sp
-                )
+                style = MaterialTheme.typography.headlineMedium
             )
         }
 
@@ -119,10 +116,8 @@ fun SetupPermissionScreen(
                 text = stringResource(R.string.novari_can_automate_your_expense_tracking),
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
-                style = NovariTypography.labelMedium.copy(
-                    fontSize = 12.sp
-                )
-
+                style = MaterialTheme.typography.bodyMedium,
+                color = NovariColors.Slate
             )
         }
 
@@ -178,8 +173,7 @@ fun SetupPermissionScreen(
         ) {
             Text(
                 text = stringResource(R.string.maybe_later),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onPrimary
             )
         }
@@ -211,13 +205,13 @@ private fun PermissionCard(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(NovariShape.card)
             .border(
                 width = 1.dp,
-                color = Color(0xFFE5E5E5),
-                shape = RoundedCornerShape(16.dp)
+                color = NovariColors.Border,
+                shape = NovariShape.card
             )
-            .background(Color.White)
+            .background(NovariColors.Surface)
             .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
 
@@ -243,33 +237,24 @@ private fun PermissionCard(
 
                 Text(
                     text = title,
-                    style = NovariTypography.bodyLarge.copy(
-                        fontSize = 14.sp
-                    ),
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF202124)
+                    style = MaterialTheme.typography.titleSmall,
+                    color = NovariColors.Navy
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
                     text = subTitle,
-                    style = NovariTypography.bodyMedium.copy(
-                        fontSize = 12.sp
-                    ),
-                    lineHeight = 19.sp,
-                    color = Color(0xFF14736D)
+                    style = MaterialTheme.typography.bodySmall.copy(lineHeight = 19.sp),
+                    color = NovariColors.DarkTeal
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
 
                 Text(
                     text = description,
-                    style = NovariTypography.bodyMedium.copy(
-                        fontSize = 12.sp
-                    ),
-                    lineHeight = 18.sp,
-                    color = Color(0xFF666666)
+                    style = MaterialTheme.typography.bodySmall.copy(lineHeight = 18.sp),
+                    color = NovariColors.Slate
                 )
             }
         }
@@ -277,7 +262,7 @@ private fun PermissionCard(
         Spacer(modifier = Modifier.height(16.dp))
 
         HorizontalDivider(
-            color = Color(0xFFE5E5E5),
+            color = NovariColors.Border,
             thickness = 1.dp
         )
 
@@ -288,7 +273,7 @@ private fun PermissionCard(
         val isDenied = status == PermissionStatus.DENIED || status == PermissionStatus.PERMANENTLY_DENIED
 
         val labelColor by animateColorAsState(
-            targetValue = if (isDenied) NovariColors.Error else Color(0xFF666666),
+            targetValue = if (isDenied) NovariColors.Error else NovariColors.Slate,
             animationSpec = NovariMotion.Colour,
             label = "permissionLabelColor"
         )
@@ -307,7 +292,7 @@ private fun PermissionCard(
                 Icon(
                     imageVector = Icons.Outlined.Lock,
                     contentDescription = null,
-                    tint = Color(0xFF606060),
+                    tint = NovariColors.Slate,
                     modifier = Modifier.size(18.dp)
                 )
 
@@ -322,9 +307,7 @@ private fun PermissionCard(
                     else -> stringResource(R.string.optional)
                 },
                 modifier = Modifier.weight(1f),
-                style = NovariTypography.bodyMedium.copy(
-                    fontSize = 12.sp
-                ),
+                style = MaterialTheme.typography.bodySmall,
                 color = labelColor
             )
 
@@ -351,7 +334,7 @@ private fun PermissionCard(
                     else -> Icons.AutoMirrored.Filled.ArrowForward
                 }
                 val actionTint by animateColorAsState(
-                    targetValue = if (targetDenied) NovariColors.Error else Color(0xFF14736D),
+                    targetValue = if (targetDenied) NovariColors.Error else NovariColors.DarkTeal,
                     animationSpec = NovariMotion.Colour,
                     label = "permissionActionTint"
                 )
@@ -359,10 +342,7 @@ private fun PermissionCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = actionText,
-                        style = NovariTypography.bodyLarge.copy(
-                            fontSize = 12.sp
-                        ),
-                        fontWeight = FontWeight.Medium,
+                        style = MaterialTheme.typography.labelMedium,
                         color = actionTint
                     )
 

@@ -17,9 +17,9 @@ import com.example.novari.permissions.PermissionSettingsIntents
 
 @Composable
 fun SetupPermissionRoute(
+    modifier: Modifier = Modifier,
     onClose: () -> Unit = {},
     onMaybeLater: () -> Unit = {},
-    modifier: Modifier = Modifier,
     viewModel: SetupPermissionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()

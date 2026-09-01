@@ -1,24 +1,18 @@
 package com.example.novari.ui.screens.home
 
-import androidx.annotation.DrawableRes
-import com.example.novari.R
-
+import com.example.novari.sms.health.SmsDetectionHealthState
+import com.example.novari.ui.model.Transaction
 
 /**
- * A single recent transaction.
- * Modeled as data rather than three hardcoded UI blocks so the list can
- * later be swapped for a real repository/database result with no UI changes.
- *
- * [iconRes] is a drawable resource from the project's res/drawable folder.
+ * Visibility of the "Enable Auto Tracking" prompt card on HomeScreen.
+ * [Loading] renders nothing, avoiding a flash of the card before the
+ * persisted "has the user visited setup" flag is read.
  */
-data class Transaction(
-    val id: String,
-    val title: String,
-    val category: String,
-    val date: String,
-    val amount: Int,
-    @DrawableRes val iconRes: Int
-)
+enum class AutoTrackingPromptVisibility {
+    Loading,
+    Visible,
+    Hidden
+}
 
 /**
  * Everything HomeScreen needs to render, in one place.
@@ -27,54 +21,13 @@ data class Transaction(
  */
 data class HomeUiState(
     val userName: String = "Arjun",
-    val monthlyExpense: Int = 24560 ,
-    val monthlyPercentageChange: Int = 8,
+    val monthlyExpense: Long = 0L,
+    val monthlyPercentageChange: Int = 0,
     val isLessThanLastMonth: Boolean = true,
-    val todayExpense: Int = 840,
-    val todayMessage: String = "You're doing okay today.",
+    val todayExpense: Long = 0L,
+    val todayMessage: String = "",
     val transactions: List<Transaction> = emptyList(),
-    val insightMessage: String = "You've spent less on dining this week."
-)
-
-/**
- * Mock data standing in for a repository until the data layer exists.
- * Kept separate from the composables per the "no business/mock data inside
- * UI" rule — HomeScreen only ever receives a HomeUiState.
- * actual category-icon resource names (or a category-to-icon mapping if
- * one already exists elsewhere in the project).
- */
-val mockHomeUiState = HomeUiState(
-    userName = "Arjun",
-    monthlyExpense = 24560,
-    monthlyPercentageChange = 8,
-    isLessThanLastMonth = true,
-    todayExpense = 840,
-    todayMessage = "You're doing okay today.",
-    transactions = listOf(
-        Transaction(
-            id = "txn_1",
-            title = "Lunch",
-            category = "Food",
-            date = "Today",
-            amount = 420,
-            iconRes = R.drawable.ic_food
-        ),
-        Transaction(
-            id = "txn_2",
-            title = "Auto",
-            category = "Transport",
-            date = "Today",
-            amount = 120,
-            iconRes = R.drawable.ic_transport
-        ),
-        Transaction(
-            id = "txn_3",
-            title = "Grocery",
-            category = "Shopping",
-            date = "Yesterday",
-            amount = 1240,
-            iconRes = R.drawable.ic_shopping
-        )
-    ),
-    insightMessage = "You've spent less on dining this week."
+    val insightMessage: String? = null,
+    val autoTrackingPrompt: AutoTrackingPromptVisibility = AutoTrackingPromptVisibility.Loading,
+    val smsHealth: SmsDetectionHealthState = SmsDetectionHealthState()
 )

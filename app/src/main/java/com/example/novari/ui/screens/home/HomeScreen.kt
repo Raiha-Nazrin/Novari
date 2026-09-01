@@ -22,6 +22,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.TrendingDown
+import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,11 +39,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.novari.R
+import com.example.novari.ui.components.RefreshOnResume
+import com.example.novari.ui.components.ScreenHeader
+import com.example.novari.ui.components.SmsHealthBanner
+import com.example.novari.ui.components.TransactionRowItem
+import com.example.novari.ui.components.formatTransactionAmount
+import com.example.novari.ui.model.Transaction
+import com.example.novari.ui.theme.NovariColors
 
 /**
  * Home dashboard screen. UI-only: all data arrives via [uiState] and every
@@ -56,64 +67,77 @@ fun HomeScreen(
     uiState: HomeUiState,
     onEnableAutoTracking: () -> Unit = {},
     onAddExpenseManually: () -> Unit = {},
-    onTransactionClick: (Transaction) -> Unit = {},
+    onTransactionClick: (String) -> Unit = {},
     onEditTransaction: (Transaction) -> Unit = {},
     onDeleteTransaction: (Transaction) -> Unit = {},
-    onSeeAllTransactions: () -> Unit = {}
+    onSeeAllTransactions: () -> Unit = {},
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     var selectedTransactionId by rememberSaveable { mutableStateOf<String?>(null) }
 
+    RefreshOnResume { viewModel.refreshSmsPermissionState() }
+
     LazyColumn(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp)
-            .padding(top = 28.dp, bottom = 32.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .padding(top = 28.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         item {
-            HomeHeader(userName = uiState.userName)
+            HomeHeader(viewModel)
         }
 
         item {
-            MonthlyExpenseCard(
-                amount = uiState.monthlyExpense,
-                percentageChange = uiState.monthlyPercentageChange,
-                isLessThanLastMonth = uiState.isLessThanLastMonth
-            )
+
+                MonthlyExpenseCard(
+                    amount = uiState.monthlyExpense,
+                    percentageChange = uiState.monthlyPercentageChange,
+                    isLessThanLastMonth = uiState.isLessThanLastMonth
+                )
+
+
         }
 
         item {
-            TodayExpenseCard(
-                amount = uiState.todayExpense,
-                message = uiState.todayMessage
-            )
+
+                TodayExpenseCard(
+                    amount = uiState.todayExpense,
+                    message = uiState.todayMessage
+                )
+
+
         }
 
-        item {
-            AutoTrackingCard(
-                onEnableAutoTracking = onEnableAutoTracking,
-                onAddExpenseManually = onAddExpenseManually
-            )
+        if (uiState.autoTrackingPrompt == AutoTrackingPromptVisibility.Visible) {
+            item(key = "auto_tracking_card") {
+                AutoTrackingCard(
+                    onEnableAutoTracking = onEnableAutoTracking,
+                    onAddExpenseManually = onAddExpenseManually,
+                    modifier = Modifier.animateItem()
+                )
+            }
         }
 
         item {
             RecentTransactionsSection(
                 transactions = uiState.transactions,
                 selectedTransactionId = selectedTransactionId,
-                onTransactionClick = { transaction ->
-                    selectedTransactionId =
-                        if (selectedTransactionId == transaction.id) null else transaction.id
-                    onTransactionClick(transaction)
+                onTransactionClick = { transactionId ->
+                    onTransactionClick(transactionId)
                 },
-                onEditTransaction = onEditTransaction,
-                onDeleteTransaction = { transaction ->
-                    onDeleteTransaction(transaction)
-                    selectedTransactionId = null
-                },
-                onSeeAllTransactions = onSeeAllTransactions
+                onSeeAllTransactions = onSeeAllTransactions,
+                onEnableAutoTracking = onEnableAutoTracking,
+                showEnableTracking = uiState.autoTrackingPrompt == AutoTrackingPromptVisibility.Visible
             )
         }
 
         item {
-            InsightCard(message = uiState.insightMessage)
+            val insightMessage = uiState.insightMessage
+            if (insightMessage != null) {
+                InsightCard(message = insightMessage)
+                Spacer(modifier = Modifier.height(15.dp))
+            }
         }
     }
 }
@@ -123,30 +147,22 @@ fun HomeScreen(
  */
 @Composable
 private fun HomeHeader(
-    userName: String,
-    modifier: Modifier = Modifier
+    viewModel: HomeViewModel
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.Top
-    ) {
-        Column {
-
-            Text(
-                text = "Good morning 👋",
-                style = MaterialTheme.typography.headlineMedium
-            )
+    ScreenHeader(
+        title = viewModel.getGreeting(),
+        trailing = {
+            IconButton(
+                onClick = { /* Open notifications */ }
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_notification),
+                    contentDescription = "Notifications",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
-
-        IconButton(onClick = { /*  open notifications */ }) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_notification),
-                contentDescription = "Notifications",
-                modifier = Modifier.size(24.dp)
-            )
-        }
-    }
+    )
 }
 
 /**
@@ -155,7 +171,7 @@ private fun HomeHeader(
  */
 @Composable
 private fun MonthlyExpenseCard(
-    amount: Int,
+    amount: Long,
     percentageChange: Int,
     isLessThanLastMonth: Boolean,
     modifier: Modifier = Modifier
@@ -164,47 +180,48 @@ private fun MonthlyExpenseCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp))
+            .background(NovariColors.Surface)
+            .border(1.dp, NovariColors.Border, RoundedCornerShape(20.dp))
             .padding(20.dp)
     ) {
         Text(
             text = "This month",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = NovariColors.Slate
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "₹${formatAmount(amount)}",
+            text = "₹${formatTransactionAmount(amount)}",
             style = MaterialTheme.typography.headlineSmall
         )
 
         Text(
             text = "spent",
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = NovariColors.Slate
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        /*Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                painter = painterResource(
-                    id = if (isLessThanLastMonth) R.drawable.ic_trending_down else R.drawable.ic_trending_up
-                ),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(16.dp)
-            )
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(
-                text = "$percentageChange% ${if (isLessThanLastMonth) "less" else "more"} than last month",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }*/
+        if (percentageChange != 0) {
+            val trendColor = if (isLessThanLastMonth) NovariColors.Teal else NovariColors.Error
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = if (isLessThanLastMonth) Icons.Default.TrendingDown else Icons.Default.TrendingUp,
+                    contentDescription = null,
+                    tint = trendColor,
+                    modifier = Modifier.size(16.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = "$percentageChange% ${if (isLessThanLastMonth) "less" else "more"} than last month",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = trendColor
+                )
+            }
+        }
     }
 }
 
@@ -213,7 +230,7 @@ private fun MonthlyExpenseCard(
  */
 @Composable
 private fun TodayExpenseCard(
-    amount: Int,
+    amount: Long,
     message: String,
     modifier: Modifier = Modifier
 ) {
@@ -221,8 +238,8 @@ private fun TodayExpenseCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp))
+            .background(NovariColors.Surface)
+            .border(1.dp, NovariColors.Border, RoundedCornerShape(20.dp))
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -230,7 +247,7 @@ private fun TodayExpenseCard(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(NovariColors.PaleTeal),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -246,31 +263,33 @@ private fun TodayExpenseCard(
             Text(
                 text = "Today",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = NovariColors.Slate
             )
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = "₹${formatAmount(amount)}",
+                    text = "₹${formatTransactionAmount(amount)}",
                     style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     text = "spent",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = NovariColors.Slate
                 )
             }
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.primary
-            )
+            if (message.isNotBlank()) {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = NovariColors.Teal
+                )
+            }
         }
 
         Icon(
             painter = painterResource(id = R.drawable.ic_arrow_right),
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = NovariColors.Slate,
             modifier = Modifier.size(20.dp)
         )
     }
@@ -290,8 +309,8 @@ private fun AutoTrackingCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp))
+            .background(NovariColors.Surface)
+            .border(1.dp, NovariColors.Border, RoundedCornerShape(20.dp))
             .padding(20.dp)
     ) {
         Image(
@@ -303,7 +322,7 @@ private fun AutoTrackingCard(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = "Let Novari do the heavy lifting.",
+            text = stringResource(R.string.let_novari_do_the_heavy_lifting),
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -312,7 +331,7 @@ private fun AutoTrackingCard(
         Text(
             text = stringResource(R.string.enable_automatic_tracking_via_transaction),
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = NovariColors.Slate
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -324,7 +343,7 @@ private fun AutoTrackingCard(
                 .height(48.dp),
             shape = RoundedCornerShape(14.dp)
         ) {
-            Text(text = stringResource(R.string.enable_auto_tracking), color = Color.White)
+            Text(text = stringResource(R.string.enable_auto_tracking), color = NovariColors.Surface)
         }
 
         TextButton(
@@ -345,11 +364,11 @@ private fun AutoTrackingCard(
 private fun RecentTransactionsSection(
     transactions: List<Transaction>,
     selectedTransactionId: String?,
-    onTransactionClick: (Transaction) -> Unit,
-    onEditTransaction: (Transaction) -> Unit,
-    onDeleteTransaction: (Transaction) -> Unit,
+    onTransactionClick: (String) -> Unit,
     onSeeAllTransactions: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEnableAutoTracking : () -> Unit,
+    showEnableTracking: Boolean = false
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
@@ -358,11 +377,11 @@ private fun RecentTransactionsSection(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Recent transactions",
+                text = stringResource(R.string.recent_transactions),
                 style = MaterialTheme.typography.titleMedium
             )
             TextButton(onClick = onSeeAllTransactions) {
-                Text(text = "See all →", color = MaterialTheme.colorScheme.primary)
+                Text(text = stringResource(R.string.see_all), color = NovariColors.Teal)
             }
         }
 
@@ -371,115 +390,55 @@ private fun RecentTransactionsSection(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(vertical = 12.dp)
                 .clip(RoundedCornerShape(20.dp))
-                .background(MaterialTheme.colorScheme.surface)
-                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp))
+                .background(NovariColors.Surface)
+                .border(1.dp, NovariColors.Border, RoundedCornerShape(20.dp))
         ) {
+            if (transactions.isEmpty()) {
+                Image(painter = painterResource(R.drawable.img_no_transaction), contentDescription = "",
+                    modifier= Modifier
+                        .height(120.dp)
+                        .fillMaxWidth())
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = stringResource(R.string.no_transactions_yet_add_one_to_see_it_here),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = NovariColors.Slate,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                )
+
+                if(showEnableTracking){
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = stringResource(R.string.enable_auto_tracking),
+                        color = NovariColors.DarkTeal,
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.fillMaxWidth().clickable {
+                            onEnableAutoTracking()
+                        },
+                        textAlign = TextAlign.Center
+                    )
+
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+            }
             transactions.forEachIndexed { index, transaction ->
-                TransactionItem(
+                TransactionRowItem(
                     transaction = transaction,
                     isSelected = transaction.id == selectedTransactionId,
-                    onClick = { onTransactionClick(transaction) },
-                    onEdit = { onEditTransaction(transaction) },
-                    onDelete = { onDeleteTransaction(transaction) }
+                    onClick = { onTransactionClick(transaction.id) },
                 )
                 if (index != transactions.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun TransactionItem(
-    transaction: Transaction,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(16.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    painter = painterResource(id = transaction.iconRes),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = transaction.title, style = MaterialTheme.typography.bodyLarge)
-                Text(
-                    text = "${transaction.category} · ${transaction.date}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            Text(
-                text = "₹${formatAmount(transaction.amount)}",
-                style = MaterialTheme.typography.labelLarge
-            )
-
-            Icon(
-                painter = painterResource(id = R.drawable.ic_arrow_right),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(20.dp).padding(start = 4.dp)
-            )
-        }
-
-        AnimatedVisibility(visible = isSelected) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedButton(
-                    onClick = onEdit,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_edit),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "Edit")
-                }
-
-                Button(
-                    onClick = onDelete,
-                    modifier = Modifier.weight(1f),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_delete),
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(text = "Delete")
+                    HorizontalDivider(color = NovariColors.Border)
                 }
             }
         }
@@ -498,8 +457,8 @@ private fun InsightCard(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f))
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(20.dp))
+            .background(NovariColors.PaleTeal.copy(alpha = 0.35f))
+            .border(1.dp, NovariColors.Border, RoundedCornerShape(20.dp))
             .padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -507,7 +466,7 @@ private fun InsightCard(
             modifier = Modifier
                 .size(48.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surface),
+                .background(NovariColors.Surface),
             contentAlignment = Alignment.Center
         ) {
             Image(
@@ -531,9 +490,4 @@ private fun InsightCard(
             )
         }
     }
-}
-
-private fun formatAmount(amount: Int): String {
-    // Simple thousands-separator formatting (e.g. 24560 -> 24,560).
-    return "%,d".format(amount)
 }

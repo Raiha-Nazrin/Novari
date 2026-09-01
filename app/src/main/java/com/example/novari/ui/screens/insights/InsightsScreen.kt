@@ -25,10 +25,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.Coffee
-import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material.icons.automirrored.filled.TrendingDown
 import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material3.Icon
@@ -50,16 +47,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.novari.R
-import com.example.novari.data.Category
-import com.example.novari.data.categories
 import com.example.novari.ui.components.NovariCard
+import com.example.novari.ui.components.ScreenHeader
 import com.example.novari.ui.motion.StaggeredEntry
 import com.example.novari.ui.screens.insights.charts.SpendingChart
 import com.example.novari.ui.screens.insights.charts.WeeklyChart
 import com.example.novari.ui.theme.NovariColors
 import com.example.novari.ui.theme.NovariShape
 import com.example.novari.ui.theme.NovariSpacing
-import com.example.novari.ui.theme.NovariTypography
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -75,19 +70,20 @@ private fun formatRupees(amount: Long): String {
 @Composable
 fun InsightsScreen(
     modifier: Modifier = Modifier,
+    uiState: InsightsUiState = InsightsUiState(),
     onMonthClick: () -> Unit = {},
     onRangeClick: () -> Unit = {},
     onViewAllCategories: () -> Unit = {},
-    onCategoryClick: (Category) -> Unit = {}
+    onCategoryClick: (InsightCategory) -> Unit = {}
 ) {
     Surface(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize().padding(bottom = 0.dp),
         color = MaterialTheme.colorScheme.background
     ) {
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp)
-                .padding(top = 28.dp, bottom = 32.dp),
+                .padding(top = 28.dp),
             verticalArrangement = Arrangement.spacedBy(NovariSpacing.xl)
         ) {
 
@@ -100,6 +96,7 @@ fun InsightsScreen(
             item(key = "month_selector") {
                 StaggeredEntry(index = 1, visible = true) {
                     MonthSelector(
+                        monthLabel = uiState.monthLabel,
                         onMonthClick = onMonthClick,
                         onRangeClick = onRangeClick
                     )
@@ -108,13 +105,14 @@ fun InsightsScreen(
 
             item(key = "monthly_spending") {
                 StaggeredEntry(index = 2, visible = true) {
-                    MonthlySpendingCard()
+                    MonthlySpendingCard(uiState = uiState)
                 }
             }
 
             item(key = "categories") {
                 StaggeredEntry(index = 3, visible = true) {
                     CategoriesCard(
+                        categories = uiState.categories,
                         onViewAllCategories = onViewAllCategories,
                         onCategoryClick = onCategoryClick
                     )
@@ -123,7 +121,7 @@ fun InsightsScreen(
 
             item(key = "bottom_insights") {
                 StaggeredEntry(index = 4, visible = true) {
-                    BottomInsightsCards()
+                    BottomInsightsCards(uiState = uiState)
                 }
             }
         }
@@ -132,24 +130,15 @@ fun InsightsScreen(
 
 @Composable
 private fun InsightsHeader() {
-    Column(modifier = Modifier.fillMaxWidth()) {
-
-        Text(
-            text = stringResource(R.string.insights_title),
-            style = NovariTypography.headlineMedium
-        )
-
-        Spacer(modifier = Modifier.height(NovariSpacing.sm))
-
-        Text(
-            text = stringResource(R.string.insights_subtitle),
-            style = MaterialTheme.typography.bodyMedium,
-        )
-    }
+    ScreenHeader(
+        title = stringResource(R.string.insights_title),
+        subtitle = stringResource(R.string.insights_subtitle)
+    )
 }
 
 @Composable
 private fun MonthSelector(
+    monthLabel: String,
     onMonthClick: () -> Unit,
     onRangeClick: () -> Unit
 ) {
@@ -160,7 +149,7 @@ private fun MonthSelector(
     ) {
 
         Text(
-            text = "August 2026",
+            text = monthLabel,
             style = MaterialTheme.typography.labelLarge,
             color = NovariColors.Teal,
             maxLines = 1,
@@ -203,7 +192,7 @@ private fun MonthSelector(
 }
 
 @Composable
-private fun MonthlySpendingCard() {
+private fun MonthlySpendingCard(uiState: InsightsUiState) {
 
     NovariCard {
 
@@ -218,11 +207,11 @@ private fun MonthlySpendingCard() {
         Row(
             verticalAlignment = Alignment.Bottom,
             modifier = Modifier.semantics(mergeDescendants = true) {
-                contentDescription = "${formatRupees(24560)} spent"
+                contentDescription = "${formatRupees(uiState.monthlySpent)} spent"
             }
         ) {
             Text(
-                text = formatRupees(24560),
+                text = formatRupees(uiState.monthlySpent),
                 style = MaterialTheme.typography.headlineSmall,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -239,46 +228,62 @@ private fun MonthlySpendingCard() {
 
         Spacer(modifier = Modifier.height(NovariSpacing.md))
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.TrendingDown,
-                contentDescription = null,
-                tint = NovariColors.Teal,
-                modifier = Modifier.size(16.dp)
-            )
+        if (uiState.monthlyPercentageChange != 0) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    imageVector = if (uiState.isLessThanLastMonth) {
+                        Icons.AutoMirrored.Filled.TrendingDown
+                    } else {
+                        Icons.AutoMirrored.Filled.TrendingUp
+                    },
+                    contentDescription = null,
+                    tint = if (uiState.isLessThanLastMonth) NovariColors.Teal else NovariColors.Error,
+                    modifier = Modifier.size(16.dp)
+                )
 
-            Spacer(modifier = Modifier.width(NovariSpacing.xs))
+                Spacer(modifier = Modifier.width(NovariSpacing.xs))
 
-            Text(
-                text = stringResource(R.string.insights_less_than_last_month, 8),
-                style = MaterialTheme.typography.labelMedium,
-                color = NovariColors.Teal
-            )
+                Text(
+                    text = stringResource(
+                        if (uiState.isLessThanLastMonth) {
+                            R.string.insights_less_than_last_month
+                        } else {
+                            R.string.insights_more_than_last_month
+                        },
+                        uiState.monthlyPercentageChange
+                    ),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = if (uiState.isLessThanLastMonth) NovariColors.Teal else NovariColors.Error
+                )
+            }
+
+            Spacer(modifier = Modifier.height(NovariSpacing.lg))
         }
 
-        Spacer(modifier = Modifier.height(NovariSpacing.lg))
-
-        SpendingChart(
-            points = listOf(0.20f, 0.36f, 0.33f, 0.52f, 0.43f, 0.48f, 0.72f, 0.92f),
-            selectedIndex = 5,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(160.dp)
-        )
+        if (uiState.spendingTrendPoints.size >= 2) {
+            SpendingChart(
+                points = uiState.spendingTrendPoints,
+                selectedIndex = uiState.spendingTrendPoints.lastIndex,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(160.dp)
+            )
+        }
     }
 }
 
 @Composable
 private fun CategoriesCard(
+    categories: List<InsightCategory>,
     onViewAllCategories: () -> Unit,
-    onCategoryClick: (Category) -> Unit
+    onCategoryClick: (InsightCategory) -> Unit
 ) {
 
     NovariCard {
 
         Text(
             text = stringResource(R.string.insights_where_money_went),
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
@@ -292,7 +297,6 @@ private fun CategoriesCard(
             TextButton(onClick = onViewAllCategories) {
                 Text(
                     text = stringResource(R.string.insights_view_all_categories),
-                    style = MaterialTheme.typography.labelMedium,
                     color = NovariColors.Teal
                 )
 
@@ -309,12 +313,20 @@ private fun CategoriesCard(
 
         Spacer(modifier = Modifier.height(NovariSpacing.lg))
 
-        Column(verticalArrangement = Arrangement.spacedBy(NovariSpacing.lg)) {
-            categories.forEach { category ->
-                CategoryRow(
-                    category = category,
-                    onClick = { onCategoryClick(category) }
-                )
+        if (categories.isEmpty()) {
+            Text(
+                text = stringResource(R.string.insights_no_spending_yet),
+                style = MaterialTheme.typography.bodyMedium,
+                color = NovariColors.Muted
+            )
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(NovariSpacing.lg)) {
+                categories.forEach { category ->
+                    CategoryRow(
+                        category = category,
+                        onClick = { onCategoryClick(category) }
+                    )
+                }
             }
         }
     }
@@ -322,7 +334,7 @@ private fun CategoriesCard(
 
 @Composable
 private fun CategoryRow(
-    category: Category,
+    category: InsightCategory,
     onClick: () -> Unit
 ) {
 
@@ -421,7 +433,7 @@ private fun SpendingProgress(
 }
 
 @Composable
-private fun BottomInsightsCards() {
+private fun BottomInsightsCards(uiState: InsightsUiState) {
 
     BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
         if (maxWidth >= AdaptiveTwoColumnThreshold) {
@@ -429,16 +441,17 @@ private fun BottomInsightsCards() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(NovariSpacing.md)
             ) {
-                WeeklyRhythmCard(modifier = Modifier.weight(1f))
-                WhatChangedCard(modifier = Modifier.weight(1f))
+                WeeklyRhythmCard(uiState = uiState, modifier = Modifier.weight(1f))
+                WhatChangedCard(uiState = uiState, modifier = Modifier.weight(1f))
             }
         } else {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(NovariSpacing.md)
             ) {
-                WeeklyRhythmCard(modifier = Modifier.fillMaxWidth())
-                WhatChangedCard(modifier = Modifier.fillMaxWidth())
+                WeeklyRhythmCard(uiState = uiState, modifier = Modifier.fillMaxWidth())
+                WhatChangedCard(uiState = uiState, modifier = Modifier.fillMaxWidth())
+                Spacer(modifier = Modifier.height(15.dp))
             }
         }
     }
@@ -446,6 +459,7 @@ private fun BottomInsightsCards() {
 
 @Composable
 private fun WeeklyRhythmCard(
+    uiState: InsightsUiState,
     modifier: Modifier = Modifier
 ) {
 
@@ -453,7 +467,7 @@ private fun WeeklyRhythmCard(
 
         Text(
             text = stringResource(R.string.insights_weekly_rhythm),
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -471,7 +485,7 @@ private fun WeeklyRhythmCard(
         )
 
         WeeklyChart(
-            values = listOf(.40f, .62f, .58f, .76f, .72f, .34f, .55f),
+            values = uiState.weeklyValues,
             labels = dayLabels,
             labelStyle = MaterialTheme.typography.labelSmall.copy(color = NovariColors.Muted),
             modifier = Modifier.fillMaxWidth()
@@ -486,7 +500,7 @@ private fun WeeklyRhythmCard(
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = formatRupees(2840),
+                    text = formatRupees(uiState.weeklyTotal),
                     style = MaterialTheme.typography.headlineSmall
                 )
                 Text(
@@ -496,27 +510,39 @@ private fun WeeklyRhythmCard(
                 )
             }
 
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.TrendingDown,
-                        contentDescription = null,
-                        tint = NovariColors.Teal,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(NovariSpacing.xs))
+            if (uiState.weeklyPercentageChange != 0) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            imageVector = if (uiState.isLessThanLastWeek) {
+                                Icons.AutoMirrored.Filled.TrendingDown
+                            } else {
+                                Icons.AutoMirrored.Filled.TrendingUp
+                            },
+                            contentDescription = null,
+                            tint = if (uiState.isLessThanLastWeek) NovariColors.Teal else NovariColors.Error,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(NovariSpacing.xs))
+                        Text(
+                            text = stringResource(R.string.insights_percent_format, uiState.weeklyPercentageChange),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = if (uiState.isLessThanLastWeek) NovariColors.Teal else NovariColors.Error
+                        )
+                    }
                     Text(
-                        text = stringResource(R.string.insights_percent_format, 12),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = NovariColors.Teal
+                        text = stringResource(
+                            if (uiState.isLessThanLastWeek) {
+                                R.string.insights_less_than_last_week
+                            } else {
+                                R.string.insights_more_than_last_week
+                            }
+                        ),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = NovariColors.Muted,
+                        maxLines = 2
                     )
                 }
-                Text(
-                    text = stringResource(R.string.insights_less_than_last_week),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = NovariColors.Muted,
-                    maxLines = 2
-                )
             }
         }
     }
@@ -524,6 +550,7 @@ private fun WeeklyRhythmCard(
 
 @Composable
 private fun WhatChangedCard(
+    uiState: InsightsUiState,
     modifier: Modifier = Modifier
 ) {
 
@@ -531,41 +558,36 @@ private fun WhatChangedCard(
 
         Text(
             text = stringResource(R.string.insights_what_changed),
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.titleMedium,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
 
         Spacer(modifier = Modifier.height(NovariSpacing.md))
 
-        Column(verticalArrangement = Arrangement.spacedBy(NovariSpacing.sm)) {
-
-            ChangeItem(
-                icon = Icons.Default.Coffee,
-                title = stringResource(R.string.insights_dining),
-                changePercent = -18,
-                description = stringResource(R.string.insights_less_than_last_month_short),
-                color = NovariColors.Food,
-                backgroundColor = NovariColors.FoodBackground
+        if (uiState.whatChanged.isEmpty()) {
+            Text(
+                text = stringResource(R.string.insights_no_spending_yet),
+                style = MaterialTheme.typography.bodyMedium,
+                color = NovariColors.Muted
             )
-
-            ChangeItem(
-                icon = Icons.Default.ShoppingBag,
-                title = stringResource(R.string.insights_shopping),
-                changePercent = 11,
-                description = stringResource(R.string.insights_more_than_last_month_short),
-                color = NovariColors.Shopping,
-                backgroundColor = NovariColors.ShoppingBackground
-            )
-
-            ChangeItem(
-                icon = Icons.Default.DirectionsCar,
-                title = stringResource(R.string.insights_transport),
-                changePercent = 0,
-                description = stringResource(R.string.insights_about_the_same),
-                color = NovariColors.Transport,
-                backgroundColor = NovariColors.TransportBackground
-            )
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(NovariSpacing.sm)) {
+                uiState.whatChanged.forEach { change ->
+                    ChangeItem(
+                        icon = change.icon,
+                        title = change.name,
+                        changePercent = change.changePercent,
+                        description = when {
+                            change.changePercent > 0 -> stringResource(R.string.insights_more_than_last_month_short)
+                            change.changePercent < 0 -> stringResource(R.string.insights_less_than_last_month_short)
+                            else -> stringResource(R.string.insights_about_the_same)
+                        },
+                        color = change.color,
+                        backgroundColor = change.backgroundColor
+                    )
+                }
+            }
         }
     }
 }

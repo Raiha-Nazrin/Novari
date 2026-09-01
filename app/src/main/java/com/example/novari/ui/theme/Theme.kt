@@ -1,42 +1,71 @@
 package com.example.novari.ui.theme
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import com.example.novari.ui.motion.LocalReducedMotion
 import com.example.novari.ui.motion.rememberReducedMotion
 
-private val NovariLightColors = lightColorScheme(
+internal fun NovariColorScheme.toMaterialScheme(isDark: Boolean): ColorScheme {
+    val base = if (isDark) darkColorScheme() else lightColorScheme()
+    return base.copy(
+        primary = teal,
+        onPrimary = surface,
 
-    primary = NovariColors.Teal,
-    onPrimary = NovariColors.Surface,
+        primaryContainer = paleTeal,
+        onPrimaryContainer = darkTeal,
 
-    primaryContainer = NovariColors.PaleTeal,
-    onPrimaryContainer = NovariColors.DarkTeal,
+        background = background,
+        onBackground = navy,
 
-    background = NovariColors.Background,
-    onBackground = NovariColors.Navy,
+        surface = surface,
+        onSurface = navy,
 
-    surface = NovariColors.Surface,
-    onSurface = NovariColors.Navy,
+        surfaceVariant = paleTeal,
+        onSurfaceVariant = slate,
 
-    surfaceVariant = NovariColors.PaleTeal,
-    onSurfaceVariant = NovariColors.Slate,
+        surfaceContainer = surfaceHigh,
+        surfaceContainerLow = surfaceHigh,
+        surfaceContainerHigh = surfaceHigh,
+        surfaceContainerHighest = surfaceHigh,
 
-    outline = NovariColors.Border,
+        outline = border,
+        outlineVariant = divider,
 
-    error = NovariColors.Error,
-    onError = NovariColors.Surface
-)
+        secondary = teal,
+        onSecondary = surface,
+        secondaryContainer = paleTeal,
+        onSecondaryContainer = darkTeal,
+
+        tertiary = teal,
+        onTertiary = surface,
+        tertiaryContainer = paleTeal,
+        onTertiaryContainer = darkTeal,
+
+        error = error,
+        onError = surface,
+        errorContainer = errorBackground,
+        onErrorContainer = errorDark
+    )
+}
 
 @Composable
 fun NovariTheme(
+    settings: AppearanceSettings = AppearanceSettings(),
     content: @Composable () -> Unit
 ) {
-    CompositionLocalProvider(LocalReducedMotion provides rememberReducedMotion()) {
+    val isDark = settings.theme == ThemeMode.DARK
+    val colors = if (isDark) darkScheme(settings.accent) else lightScheme(settings.accent)
+
+    CompositionLocalProvider(
+        LocalNovariColors provides colors,
+        LocalReducedMotion provides rememberReducedMotion()
+    ) {
         MaterialTheme(
-            colorScheme = NovariLightColors,
+            colorScheme = colors.toMaterialScheme(isDark),
             typography = NovariTypography,
             content = content
         )

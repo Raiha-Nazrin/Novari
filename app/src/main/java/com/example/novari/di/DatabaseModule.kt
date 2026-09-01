@@ -7,6 +7,8 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.example.novari.core.database.DatabaseProvider
 import com.example.novari.core.database.NovariDatabase
 import com.example.novari.core.database.dao.CategoryDao
+import com.example.novari.core.database.dao.MerchantCategoryRuleDao
+import com.example.novari.core.database.dao.RecentSearchDao
 import com.example.novari.core.database.dao.SmsProcessingDao
 import com.example.novari.core.database.dao.TransactionDao
 import com.example.novari.core.security.DatabaseKeyProvider
@@ -53,4 +55,12 @@ object DatabaseModule {
     @Provides
     fun provideSmsProcessingDao(database: NovariDatabase): SmsProcessingDao =
         database.smsProcessingDao()
+
+    @Provides
+    fun provideMerchantCategoryRuleDao(database: NovariDatabase): MerchantCategoryRuleDao =
+        database.merchantCategoryRuleDao()
+
+    @Provides
+    fun provideRecentSearchDao(database: NovariDatabase): RecentSearchDao =
+        database.recentSearchDao()
 }

@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import com.example.novari.ui.theme.NovariColors
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -49,7 +49,7 @@ fun BottomNavigationBar(
         modifier = modifier
             .fillMaxWidth()
             .navigationBarsPadding(),
-        color = MaterialTheme.colorScheme.surface,
+        color = NovariColors.Surface,
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         shadowElevation = 8.dp
     ) {
@@ -84,9 +84,9 @@ private fun BottomNavIconItem(
     modifier: Modifier = Modifier
 ) {
     val tint = if (isSelected) {
-        MaterialTheme.colorScheme.primary
+        NovariColors.Teal
     } else {
-        MaterialTheme.colorScheme.onSurfaceVariant
+        NovariColors.Slate
     }
 
     Column(
@@ -126,7 +126,7 @@ private fun CenterAddButton(
         modifier = modifier
             .size(52.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primary)
+            .background(NovariColors.Teal)
             .clickable { onClick() }
             .semantics { contentDescription = "Add expense" },
         contentAlignment = Alignment.Center
@@ -134,7 +134,7 @@ private fun CenterAddButton(
         Icon(
             painter = painterResource(id = R.drawable.ic_add),
             contentDescription = null,
-            tint = Color.White,
+            tint = NovariColors.Surface,
             modifier = Modifier.size(26.dp)
         )
     }
